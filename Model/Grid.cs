@@ -41,9 +41,8 @@ public readonly struct Grid<TElementType> where TElementType : struct
     {
         StringBuilder builder = new StringBuilder(width * height);
 
-        for (int y = 0; y < data.Length; y++)
+        foreach (var line in data)
         {
-            var line = data[FlipY(y)];
             foreach (TElementType element in line)
             {
                 builder.Append(element.ToString());
