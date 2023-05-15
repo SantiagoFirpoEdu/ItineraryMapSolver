@@ -1,6 +1,6 @@
 namespace ItineraryMapSolver.Monads;
 
-public class Option<TSomeValueType>
+public readonly struct Option<TSomeValueType>
 {
 	public Option()
 	{
@@ -17,7 +17,7 @@ public class Option<TSomeValueType>
 		return new Option<TSomeValueType>();
 	}
 
-	public  Option<TReturnType> Map<TReturnType>(Func<TSomeValueType, TReturnType> optionMapper)
+	public Option<TReturnType> Map<TReturnType>(Func<TSomeValueType, TReturnType> optionMapper)
 	{
 		return value is not null ? new Option<TReturnType>(optionMapper.Invoke(value))
 			: new Option<TReturnType>();
@@ -43,7 +43,7 @@ public class Option<TSomeValueType>
 			: Option<TOutOptionalType>.None();
 	}
 
-	public void MatchSome(Action<TSomeValueType> someFunctor)
+	public readonly void MatchSome(Action<TSomeValueType> someFunctor)
 	{
 		if (IsSet())
 		{
@@ -76,13 +76,25 @@ public class Option<TSomeValueType>
 		}
 	}
 
-	public ref TSomeValueType GetValue()
+	public TSomeValueType GetValue()
 	{
 		if (value is null)
 		{
 			throw new NullReferenceException("Tried to access a Option's value while it was empty");
 		}
-		return ref value!;
+		return value;
+	}
+	
+	public bool TryGetValue(out TSomeValueType? outValue)
+	{
+		if (value is not null)
+		{
+			outValue = value;
+			return true;
+		}
+
+		outValue = default;
+		return false;
 	}
 
 	public bool IsSet()
@@ -92,7 +104,7 @@ public class Option<TSomeValueType>
 
 	public bool IsEmpty()
 	{
-		return value is null;
+		return !IsSet();
 	}
 
 	public TSomeValueType GetValueOr(TSomeValueType defaultValue)
@@ -105,5 +117,5 @@ public class Option<TSomeValueType>
 		this.value = value;
 	}
 
-	private TSomeValueType? value;
+	private readonly TSomeValueType? value;
 }

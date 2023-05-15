@@ -1,6 +1,8 @@
+using ItineraryMapSolver.Model;
+
 namespace ItineraryMapSolver.Monads;
 
-public struct Result<TOkType, TErrorType>
+public readonly struct Result<TOkType, TErrorType>
 {
 	public static Result<TOkType, TErrorType> Ok(TOkType okValue)
 	{
@@ -115,12 +117,12 @@ public struct Result<TOkType, TErrorType>
 
 	}
 
-	public ref Option<TOkType> GetOk()
+	public readonly Option<TOkType> GetOk()
 	{
-		return ref data.GetLeft();
+		return data.GetLeft();
 	}
 
-	public Option<TErrorType> GetError()
+	public readonly Option<TErrorType> GetError()
 	{
 		return data.GetRight();
 	}
@@ -136,4 +138,16 @@ public struct Result<TOkType, TErrorType>
 	}
 
 	private readonly Either<TOkType, TErrorType> data;
+
+	public bool TryGetOkValue(out TOkType? outOkValue)
+	{
+		if (data.TryGetLeftValue(out TOkType? okValue))
+		{
+			outOkValue = okValue;
+			return true;
+		}
+
+		outOkValue = default;
+		return false;
+	}
 }

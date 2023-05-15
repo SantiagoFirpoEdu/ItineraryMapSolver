@@ -1,6 +1,6 @@
 namespace ItineraryMapSolver.Monads;
 
-public class Either<TLeftType, TRightType>
+public readonly struct Either<TLeftType, TRightType>
 {
     public static Either<TLeftType, TRightType> OfRightType(TRightType rightValue)
     {
@@ -67,10 +67,10 @@ public class Either<TLeftType, TRightType>
         }
     }
 
-    public  TOutType MapExpression<TOutType>(Func<TLeftType, TOutType> okMapper, Func<TRightType, TOutType> errorMapper)
+    public TOutType MapExpression<TOutType>(Func<TLeftType, TOutType> leftMapper, Func<TRightType, TOutType> rightMapper)
     {
-        return isLeft ? okMapper.Invoke(leftValue.GetValue())
-            : errorMapper.Invoke(rightValue.GetValue());
+        return isLeft ? leftMapper.Invoke(leftValue.GetValue())
+            : rightMapper.Invoke(rightValue.GetValue());
     }
 
     public  Either<TOutLeftType, TOutRightType> Map<TOutLeftType, TOutRightType>(Func<TLeftType, TOutLeftType> okMapper, Func<TRightType, TOutRightType> errorMapper)
@@ -85,14 +85,24 @@ public class Either<TLeftType, TRightType>
             : Either<TOutLeftValue, TRightType>.OfRightType(rightValue.GetValue());
     }
 
-    public ref Option<TLeftType> GetLeft()
+    public readonly Option<TLeftType> GetLeft()
     {
-        return ref leftValue;
+        return leftValue;
     }
 
-    public ref Option<TRightType> GetRight()
+    public readonly Option<TRightType> GetRight()
     {
-        return ref rightValue;
+        return rightValue;
+    }
+
+    public bool TryGetLeftValue(out TLeftType? outLeftValue)
+    {
+        return GetLeft().TryGetValue(out outLeftValue);
+    }
+    
+    public bool TryGetRightValue(out TRightType? outRightValue)
+    {
+        return GetRight().TryGetValue(out outRightValue);
     }
     
     private Either(TLeftType leftValue)
@@ -109,7 +119,8 @@ public class Either<TLeftType, TRightType>
         isLeft = false;
     }
 
-    private Option<TLeftType> leftValue;
-    private Option<TRightType> rightValue;
+    private readonly Option<TLeftType> leftValue;
+    private readonly Option<TRightType> rightValue;
     private readonly bool isLeft;
+
 }
