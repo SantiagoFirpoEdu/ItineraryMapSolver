@@ -2,21 +2,21 @@
 
 namespace ItineraryMapSolver.Model;
 
-public readonly struct MapNode
+public readonly struct MapNode : INode
 {
-    public static Result<MapNode, EMapCharacterConversionError> FromCharacter(char nodeCharacter)
+    public static Result<MapNode, EMapCharacterConversionError> FromCharacter(char nodeCharacter, IntVector position)
     {
         if (char.IsDigit(nodeCharacter))
         {
             return int.TryParse(nodeCharacter.ToString(), out int harborId)
-                ? Result<MapNode, EMapCharacterConversionError>.Ok(new MapNode(harborId))
+                ? Result<MapNode, EMapCharacterConversionError>.Ok(new MapNode(harborId, position))
                 : Result<MapNode, EMapCharacterConversionError>.Error(EMapCharacterConversionError.InvalidCharacter);
         }
 
         return nodeCharacter switch
         {
-            '.' => Result<MapNode, EMapCharacterConversionError>.Ok(new MapNode(false)),
-            '*' => Result<MapNode, EMapCharacterConversionError>.Ok(new MapNode(true)),
+            '.' => Result<MapNode, EMapCharacterConversionError>.Ok(new MapNode(false, position)),
+            '*' => Result<MapNode, EMapCharacterConversionError>.Ok(new MapNode(true, position)),
             var _ => Result<MapNode, EMapCharacterConversionError>.Error(EMapCharacterConversionError.InvalidCharacter)
         };
     }
@@ -36,17 +36,25 @@ public readonly struct MapNode
         return data.TryGetRightValue(out isWall);
     }
 
-    private MapNode(bool isWall)
+    private MapNode(bool isWall, IntVector position)
     {
+        Position = position;
         data = Either<int, bool>.OfRightType(isWall);
     }
 
-    private MapNode(int harborId)
+    private MapNode(int harborId, IntVector position)
     {
+        Position = position;
         data = Either<int, bool>.OfLeftType(harborId);
     }
 
     private readonly Either<int /*harborId*/, bool /*isWall*/> data;
+    public IntVector Position { get; }
+}
+
+public interface INode
+{
+    public IntVector Position { get; }
 }
 
 public enum EMapCharacterConversionError

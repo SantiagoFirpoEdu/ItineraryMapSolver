@@ -2,12 +2,12 @@
 
 namespace ItineraryMapSolver.Model;
 
-public readonly struct Grid<TElementType> where TElementType : struct
+public readonly struct Grid<TElementType> : IGrid<TElementType>
 {
     public Grid(int width, int height)
     {
-        this.width = width;
-        this.height = height;
+        Width = width;
+        Height = height;
         data = new TElementType[height][];
 
         InitializeHorizontalAxis();
@@ -29,23 +29,23 @@ public readonly struct Grid<TElementType> where TElementType : struct
     {
         for (int i = 0; i < data.Length; i++)
         {
-            data[i] = new TElementType[width];
+            data[i] = new TElementType[Width];
         }
     }
 
     private readonly TElementType[][] data;
-    private readonly int width;
-    private readonly int height;
+    public int Width { get; }
+    public int Height { get; }
 
     public string DebugPrint()
     {
-        StringBuilder builder = new StringBuilder(width * height);
+        StringBuilder builder = new StringBuilder(Width * Height);
 
         foreach (var line in data)
         {
             foreach (TElementType element in line)
             {
-                builder.Append(element.ToString());
+                builder.Append(element);
             }
 
             builder.Append('\n');
@@ -56,7 +56,6 @@ public readonly struct Grid<TElementType> where TElementType : struct
 
     private int FlipY(int y)
     {
-
         return data.Length - 1 - y;
     }
 }

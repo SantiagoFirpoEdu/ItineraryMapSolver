@@ -12,6 +12,9 @@ public readonly struct MapGrid
         return destinations.TryAdd(destinationId, new IntVector(x, y));
     }
 
+    public int Width => grid.Width;
+    public int Height => grid.Height;
+
     private readonly Grid<MapNode> grid;
     private readonly Dictionary<int, IntVector> destinations = new();
 
