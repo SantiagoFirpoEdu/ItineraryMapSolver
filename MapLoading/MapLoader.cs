@@ -1,4 +1,5 @@
-﻿using ItineraryMapSolver.Monads;
+﻿using ItineraryMapSolver.Model;
+using ItineraryMapSolver.Monads;
 
 namespace ItineraryMapSolver.MapLoading;
 

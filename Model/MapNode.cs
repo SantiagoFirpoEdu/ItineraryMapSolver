@@ -1,6 +1,6 @@
 ﻿using ItineraryMapSolver.Monads;
 
-namespace ItineraryMapSolver;
+namespace ItineraryMapSolver.Model;
 
 public readonly struct MapNode
 {

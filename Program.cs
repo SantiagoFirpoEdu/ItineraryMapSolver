@@ -1,4 +1,5 @@
 ﻿using ItineraryMapSolver.MapLoading;
+using ItineraryMapSolver.Model;
 
 Console.WriteLine("Please insert the path to the map file: ");
 string? path = Console.ReadLine();

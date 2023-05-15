@@ -1,6 +1,4 @@
-﻿using ItineraryMapSolver.Model;
-
-namespace ItineraryMapSolver.MapLoading;
+﻿namespace ItineraryMapSolver.Model;
 
 public readonly struct MapGrid
 {
