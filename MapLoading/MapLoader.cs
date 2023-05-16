@@ -23,7 +23,7 @@ public static class MapLoader
         }
         catch (IOException)
         {
-            return Result<MapGrid, EGridLoadError>.Error(EGridLoadError.IOException);
+            return Result<MapGrid, EGridLoadError>.Error(EGridLoadError.IoException);
         }
         catch (ArgumentException)
         {
@@ -45,7 +45,8 @@ public static class MapLoader
             for (int x = 0; x < line.Length; ++x)
             {
                 char nodeCharacter = line[x];
-                var nodeResult = MapNode.FromCharacter(nodeCharacter);
+                IntVector nodePosition = new(x, y);
+                var nodeResult = MapNode.FromCharacter(nodeCharacter, nodePosition);
 
                 if (!nodeResult.TryGetOkValue(out MapNode node))
                 {
@@ -66,6 +67,6 @@ public enum EGridLoadError
 {
     NotEnoughLines,
     InvalidPath,
-    IOException,
+    IoException,
     UnauthorizedAccess
 }

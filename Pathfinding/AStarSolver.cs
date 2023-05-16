@@ -9,10 +9,10 @@ public static class AStarSolver
     {
         PathGrid pathGrid = new(grid.Width, grid.Height);
         Dictionary<IntVector, PathNode> nodesToSearch = new();
-        HashSet<PathNode> searchedNodes = new();
-        PathNode initialNode = new PathNode(from);
+        Dictionary<IntVector, PathNode> searchedNodes = new();
+        PathNode initialNode = pathGrid.GetNode(from.X, from.y);
+
         nodesToSearch.Add(from, initialNode);
-        //TODO implement A*
         while (nodesToSearch.Count > 0)
         {
             return null;
