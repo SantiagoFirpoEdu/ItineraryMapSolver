@@ -7,6 +7,10 @@ public interface IGrid<TElementType> where TElementType : INode<TElementType>
     public TElementType SetNode(in TElementType newElement, int x, int y);
     public int Width { get; }
     public int Height { get; }
+    IntVector Dimensions { get; }
     public string DebugPrint();
-    Dictionary<IntVector, TElementType> GetNeighbors(IntVector nodePosition);
+    HashSet<int> GetNeighbors(IntVector nodePosition);
+    ref TElementType GetNodeRef(int nodeIndex);
+    int ComputeIndex(IntVector position);
+    int ComputeIndex(int x, int y);
 }

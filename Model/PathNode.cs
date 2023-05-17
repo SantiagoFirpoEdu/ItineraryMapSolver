@@ -1,39 +1,38 @@
-﻿namespace ItineraryMapSolver.Model;
+﻿using ItineraryMapSolver.Monads;
+
+namespace ItineraryMapSolver.Model;
 
 public struct PathNode : INode<PathNode>
 {
-    public PathNode(IntVector position, Dictionary<IntVector, PathNode> neighbors, int gridWidth, int gridHeight)
-    {
-        Position = position;
-        Neighbors = neighbors;
-        _index = GridMath.ComputeIndex(position, gridWidth, gridHeight);
-    }
-
     public override int GetHashCode()
     {
         return Position.GetHashCode();
     }
 
     public IntVector? Position { get; set; }
-    public Dictionary<IntVector, PathNode>? Neighbors { get; set; }
+    public HashSet<int>? Neighbors { get; set; }
 
     public void ComputeTotalCost()
     {
-        TotalCost = _heuristicCost + _distanceFromStart;
+        TotalCost = HeuristicCost + CostFromStart;
     }
 
     public const int UnitWalkingCost = 1;
-    private int _heuristicCost = int.MaxValue;
-    private int _distanceFromStart = int.MaxValue;
-    private int _index;
-    public int TotalCost { get; private set; } = int.MaxValue;
-
-    public PathNode(int index)
-    {
-        _index = index;
-    }
+    public int HeuristicCost { get; set; }
+    public int CostFromStart { get; set; }
+    public int? Index { get; set; }
+    public int TotalCost { get; private set; }
+    
+    public Option<int> CameFromNodeIndex { get; set; }
 
     public PathNode()
     {
     }
+
+    public void InitializeTotalCost()
+    {
+        TotalCost = InitialCostValue;
+    }
+    
+	public const int InitialCostValue = int.MaxValue / 2;
 }

@@ -4,6 +4,7 @@ public readonly struct Option<TSomeValueType>
 {
 	public Option()
 	{
+		isSet = false;
 		value = default;
 	}
 
@@ -19,19 +20,19 @@ public readonly struct Option<TSomeValueType>
 
 	public Option<TReturnType> Map<TReturnType>(Func<TSomeValueType, TReturnType> optionMapper)
 	{
-		return value is not null ? new Option<TReturnType>(optionMapper.Invoke(value))
+		return isSet ? new Option<TReturnType>(optionMapper.Invoke(value!))
 			: new Option<TReturnType>();
 	}
 
 	public TOutType MapExpression<TOutType>(Func<TOutType> someMapper, Func<TOutType> noneMapper)
 	{
-		return value is not null ? someMapper.Invoke()
+		return isSet ? someMapper.Invoke()
 			: noneMapper.Invoke();
 	}
 
 	public TOutType MapExpression<TOutType>(Func<TSomeValueType, TOutType> someMapper, Func<TOutType> noneMapper)
 	{
-		return value is not null ? someMapper.Invoke(value)
+		return isSet ? someMapper.Invoke(value!)
 			: noneMapper.Invoke();
 	}
 
@@ -43,7 +44,7 @@ public readonly struct Option<TSomeValueType>
 			: Option<TOutOptionalType>.None();
 	}
 
-	public readonly void MatchSome(Action<TSomeValueType> someFunctor)
+	public void MatchSome(Action<TSomeValueType> someFunctor)
 	{
 		if (IsSet())
 		{
@@ -78,16 +79,16 @@ public readonly struct Option<TSomeValueType>
 
 	public TSomeValueType GetValue()
 	{
-		if (value is null)
+		if (!isSet)
 		{
 			throw new NullReferenceException("Tried to access a Option's value while it was empty");
 		}
-		return value;
+		return value!;
 	}
 	
 	public bool TryGetValue(out TSomeValueType? outValue)
 	{
-		if (value is not null)
+		if (isSet)
 		{
 			outValue = value;
 			return true;
@@ -99,7 +100,7 @@ public readonly struct Option<TSomeValueType>
 
 	public bool IsSet()
 	{
-		return value is not null;
+		return isSet;
 	}
 
 	public bool IsEmpty()
@@ -109,13 +110,15 @@ public readonly struct Option<TSomeValueType>
 
 	public TSomeValueType GetValueOr(TSomeValueType defaultValue)
 	{
-		return  value ?? defaultValue;
+		return  (isSet ? value : defaultValue)!;
 	}
 
 	private Option(TSomeValueType value)
 	{
+		isSet = true;
 		this.value = value;
 	}
 
+	private readonly bool isSet;
 	private readonly TSomeValueType? value;
 }

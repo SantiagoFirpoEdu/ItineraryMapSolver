@@ -58,7 +58,7 @@ public static class MapLoader
     {
         char nodeCharacter = line[x];
         IntVector nodePosition = new(x, y);
-        var nodeResult = MapNode.FromCharacter(nodeCharacter, nodePosition, grid.GetNeighbors(nodePosition));
+        var nodeResult = MapNode.FromCharacter(nodeCharacter, nodePosition, grid.GetNeighbors(nodePosition), grid.Dimensions);
 
         if (!nodeResult.TryGetOkValue(out MapNode node))
         {

@@ -25,13 +25,13 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
     {
         return GridMath.ComputeIndex(position.X, position.Y, Width, Height);
     }
-    
+
     public readonly int ComputeIndex(int x, int y)
     {
         return GridMath.ComputeIndex(x, y, Width, Height);
     }
     
-    private ref TElementType GetNodeRef(int x, int y)
+    public ref TElementType GetNodeRef(int x, int y)
     {
         return ref _data[ComputeIndex(x, y)];
     }
@@ -55,6 +55,7 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
     private readonly TElementType[] _data;
     public int Width { get; }
     public int Height { get; }
+    public IntVector Dimensions => new IntVector(Width, Height);
 
     public readonly string DebugPrint()
     {
@@ -73,39 +74,34 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
         return builder.ToString();
     }
 
-    public readonly Dictionary<IntVector, TElementType> GetNeighbors(IntVector nodePosition)
+    public readonly HashSet<int> GetNeighbors(IntVector nodePosition)
     {
-        Dictionary<IntVector, TElementType> neighbors = new();
+        HashSet<int> neighbors = new();
         IntVector bottomLeft = nodePosition + new IntVector(-1, -1);
         if (bottomLeft is { X: >= 0, Y: >= 0 })
         {
-            neighbors.Add(bottomLeft, GetNode(bottomLeft));
+            neighbors.Add(ComputeIndex(bottomLeft));
         }
 
         IntVector bottomRight = nodePosition + new IntVector(1, -1);
         if (bottomRight.X < Width && bottomRight is { Y: >= 0 })
         {
-            neighbors.Add(bottomRight, GetNode(bottomRight));
+            neighbors.Add(ComputeIndex(bottomRight));
         }
 
         IntVector topLeft = nodePosition + new IntVector(-1, 1);
         if (topLeft is { X: >= 0 } && topLeft.Y < Height)
         {
-            neighbors.Add(topLeft, GetNode(topLeft));
+            neighbors.Add(ComputeIndex(topLeft));
         }
 
         IntVector topRight = nodePosition + new IntVector(1, 1);
         if (topRight.X < Width && topRight.Y < Height)
         {
-            neighbors.Add(topRight, GetNode(topRight));
+            neighbors.Add(ComputeIndex(topRight));
         }
 
         return neighbors;
-    }
-
-    private static int FlipY(int y, int width)
-    {
-        return width - 1 - y;
     }
 
     public void InitializeNodes(in Func<IntVector, TElementType> nodeSupplier)
@@ -118,5 +114,20 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
                 SetNode(nodeSupplier.Invoke(currentPosition), x, y);
             }
         }
+    }
+
+    public readonly ref TElementType GetNodeRef(int nodeIndex)
+    {
+        return ref _data[nodeIndex];
+    }
+
+    public readonly TElementType GetNode(int nodeIndex)
+    {
+        return _data[nodeIndex];
+    }
+
+    public readonly ref readonly TElementType GetNodeRefReadonly(int nodeIndex)
+    {
+        return ref _data[nodeIndex];
     }
 }
