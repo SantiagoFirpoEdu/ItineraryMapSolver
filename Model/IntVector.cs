@@ -1,6 +1,6 @@
 ﻿namespace ItineraryMapSolver.Model;
 
-public record struct IntVector(int X, int Y)
+public readonly record struct IntVector(int X, int Y)
 {
     public override int GetHashCode()
     {

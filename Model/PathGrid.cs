@@ -1,27 +1,22 @@
 ﻿namespace ItineraryMapSolver.Model;
 
-public readonly struct PathGrid : IGrid<PathNode>
+public struct PathGrid : IGrid<PathNode>
 {
 	public PathGrid(int width, int height)
 	{
 		_grid = new Grid<PathNode>(width, height);
-	
-		var grid = _grid;
-		PathNode NodeSupplier(IntVector position) => new(position, grid.GetNeighbors(position));
-
-		grid.InitializeNodes(NodeSupplier);
 	}
 
-	public PathNode GetNode(in int x, in int y)
+	public PathNode GetNode(int x, int y)
 	{
 		return _grid.GetNode(x, y);
 	}
 
-	public PathNode GetNode(in IntVector position)
+	public PathNode GetNode(IntVector position)
 	{
 		return _grid.GetNode(position);
 	}
-	public PathNode SetNode(in PathNode newElement, in int x, in int y)
+	public PathNode SetNode(in PathNode newElement, int x, int y)
 	{
 		return _grid.SetNode(newElement, x, y);
 	}
@@ -31,10 +26,10 @@ public readonly struct PathGrid : IGrid<PathNode>
 	{
 		return _grid.DebugPrint();
 	}
-	public Dictionary<IntVector, PathNode> GetNeighbors(in IntVector nodePosition)
+	public Dictionary<IntVector, PathNode> GetNeighbors(IntVector nodePosition)
 	{
 		return _grid.GetNeighbors(nodePosition);
 	}
 	
-	private readonly Grid<PathNode> _grid;
+	private Grid<PathNode> _grid;
 }

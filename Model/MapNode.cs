@@ -2,7 +2,7 @@
 
 namespace ItineraryMapSolver.Model;
 
-public readonly struct MapNode : INode<MapNode>
+public struct MapNode : INode<MapNode>
 {
     public static Result<MapNode, EMapCharacterConversionError> FromCharacter(char nodeCharacter, IntVector position, Dictionary<IntVector, MapNode> neighbors)
     {
@@ -50,9 +50,10 @@ public readonly struct MapNode : INode<MapNode>
         _data = Either<int, bool>.OfLeftType(harborId);
     }
 
+    public IntVector? Position { get; set; }
+    public Dictionary<IntVector, MapNode>? Neighbors { get; set; }
+
     private readonly Either<int /*harborId*/, bool /*isWall*/> _data;
-    public IntVector Position { get; }
-    public Dictionary<IntVector, MapNode> Neighbors { get; init; }
 }
 
 public enum EMapCharacterConversionError

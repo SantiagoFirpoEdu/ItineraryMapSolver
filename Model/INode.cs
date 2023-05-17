@@ -2,6 +2,6 @@
 
 public interface INode<TNeighborType>
 {
-	public IntVector? Position { get; }
-	public Dictionary<IntVector, PathNode>? Neighbors { get; protected init; }
+	public Dictionary<IntVector, TNeighborType>? Neighbors { get;  set; }
+	public IntVector? Position { get; set; }
 }

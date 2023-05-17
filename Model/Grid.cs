@@ -2,63 +2,88 @@
 
 namespace ItineraryMapSolver.Model;
 
-public readonly struct Grid<TElementType> : IGrid<TElementType> where TElementType : new()
+public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INode<TElementType>, new()
 {
     public Grid(int width, int height)
     {
         Width = width;
         Height = height;
-        _data = new TElementType[height][];
+        _data = new TElementType[height * width];
 
-        InitializeHorizontalAxis();
+		for (int x = 0; x < width; x++)
+		{
+			for (int y = 0; y < height; y++)
+            {
+                ref TElementType elementType = ref GetNodeRef(x, y);
+                elementType.Position = new IntVector(x, y);
+                elementType.Neighbors = GetNeighbors((IntVector) elementType.Position);
+            }
+		}
     }
-
-    public TElementType GetNode(in int x, in int y)
+    
+    public static int ComputeIndex(IntVector position, int gridWidth)
     {
-        return _data[FlipY(y)][x];
+        return position.X + FlipY(position.Y, gridWidth) * gridWidth;
     }
-    public TElementType GetNode(in IntVector position)
+
+    public readonly int ComputeIndex(IntVector position)
+    {
+        return ComputeIndex(position.X, position.Y, Width);
+    }
+    
+    public readonly int ComputeIndex(int x, int y)
+    {
+        return ComputeIndex(x, y, Width);
+    }
+    
+    public static int ComputeIndex(int x, int y, int gridWidth)
+    {
+        return x + y * gridWidth;
+    }
+
+    private ref TElementType GetNodeRef(int x, int y)
+    {
+        return ref _data[ComputeIndex(x, y)];
+    }
+    
+    public readonly TElementType GetNode(int x, int y)
+    {
+        return _data[ComputeIndex(x, y, Width)];
+    }
+    public readonly TElementType GetNode(IntVector position)
     {
         return GetNode(position.X, position.Y);
     }
 
-    public TElementType SetNode(in TElementType newElement, in int x, in int y)
+    public TElementType SetNode(in TElementType newElement, int x, int y)
     {
         TElementType oldElement = GetNode(x, y);
-        _data[FlipY(y)][x] = newElement;
+        _data[ComputeIndex(x, y, Width)] = newElement;
         return oldElement;
     }
 
-    private void InitializeHorizontalAxis()
-    {
-        for (int i = 0; i < _data.Length; i++)
-        {
-            _data[i] = new TElementType[Width];
-        }
-    }
-
-    private readonly TElementType[][] _data;
+    private readonly TElementType[] _data;
     public int Width { get; }
     public int Height { get; }
 
-    public string DebugPrint()
+    public readonly string DebugPrint()
     {
         StringBuilder builder = new(Width * Height);
 
-        foreach (var line in _data)
+        for (int index = 0; index < _data.Length; index++)
         {
-            foreach (TElementType element in line)
+            ref readonly TElementType element = ref _data[index];
+            if (index != 0 && index % Width == 0)
             {
-                builder.Append(element);
+                builder.Append('\n');
             }
-
-            builder.Append('\n');
+            builder.Append(element);
         }
 
         return builder.ToString();
     }
 
-    public Dictionary<IntVector, TElementType> GetNeighbors(in IntVector nodePosition)
+    public readonly Dictionary<IntVector, TElementType> GetNeighbors(IntVector nodePosition)
     {
         Dictionary<IntVector, TElementType> neighbors = new();
         IntVector bottomLeft = nodePosition + new IntVector(-1, -1);
@@ -70,27 +95,27 @@ public readonly struct Grid<TElementType> : IGrid<TElementType> where TElementTy
         IntVector bottomRight = nodePosition + new IntVector(1, -1);
         if (bottomRight.X < Width && bottomRight is { Y: >= 0 })
         {
-            neighbors.Add(bottomLeft, GetNode(bottomLeft));
+            neighbors.Add(bottomRight, GetNode(bottomRight));
         }
 
         IntVector topLeft = nodePosition + new IntVector(-1, 1);
         if (topLeft is { X: >= 0 } && topLeft.Y < Height)
         {
-            neighbors.Add(bottomLeft, GetNode(bottomLeft));
+            neighbors.Add(topLeft, GetNode(topLeft));
         }
 
         IntVector topRight = nodePosition + new IntVector(1, 1);
         if (topRight.X < Width && topRight.Y < Height)
         {
-            neighbors.Add(bottomLeft, GetNode(bottomLeft));
+            neighbors.Add(topRight, GetNode(topRight));
         }
 
         return neighbors;
     }
 
-    private int FlipY(int y)
+    private static int FlipY(int y, int width)
     {
-        return _data.Length - 1 - y;
+        return width - 1 - y;
     }
 
     public void InitializeNodes(in Func<IntVector, TElementType> nodeSupplier)
