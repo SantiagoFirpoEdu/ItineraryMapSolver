@@ -21,26 +21,16 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
 		}
     }
     
-    public static int ComputeIndex(IntVector position, int gridWidth)
-    {
-        return position.X + FlipY(position.Y, gridWidth) * gridWidth;
-    }
-
     public readonly int ComputeIndex(IntVector position)
     {
-        return ComputeIndex(position.X, position.Y, Width);
+        return GridMath.ComputeIndex(position.X, position.Y, Width, Height);
     }
     
     public readonly int ComputeIndex(int x, int y)
     {
-        return ComputeIndex(x, y, Width);
+        return GridMath.ComputeIndex(x, y, Width, Height);
     }
     
-    public static int ComputeIndex(int x, int y, int gridWidth)
-    {
-        return x + y * gridWidth;
-    }
-
     private ref TElementType GetNodeRef(int x, int y)
     {
         return ref _data[ComputeIndex(x, y)];
@@ -48,7 +38,7 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
     
     public readonly TElementType GetNode(int x, int y)
     {
-        return _data[ComputeIndex(x, y, Width)];
+        return _data[ComputeIndex(x, y)];
     }
     public readonly TElementType GetNode(IntVector position)
     {
@@ -58,7 +48,7 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
     public TElementType SetNode(in TElementType newElement, int x, int y)
     {
         TElementType oldElement = GetNode(x, y);
-        _data[ComputeIndex(x, y, Width)] = newElement;
+        _data[ComputeIndex(x, y)] = newElement;
         return oldElement;
     }
 

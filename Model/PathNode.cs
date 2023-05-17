@@ -2,11 +2,11 @@
 
 public struct PathNode : INode<PathNode>
 {
-    public PathNode(IntVector position, Dictionary<IntVector, PathNode> neighbors, int gridWidth)
+    public PathNode(IntVector position, Dictionary<IntVector, PathNode> neighbors, int gridWidth, int gridHeight)
     {
         Position = position;
         Neighbors = neighbors;
-        _index = Grid<PathNode>.ComputeIndex(position, gridWidth);
+        _index = GridMath.ComputeIndex(position, gridWidth, gridHeight);
     }
 
     public override int GetHashCode()
