@@ -8,9 +8,9 @@ public static class AStarSolver
     public static List<IntVector> SolvePath(in MapGrid grid, in IntVector from, in IntVector to)
     {
         PathGrid pathGrid = new(grid.Width, grid.Height);
-        Dictionary<IntVector, PathNode> nodesToSearch = new();
+        Dictionary<IntVector, PathNode?> nodesToSearch = new();
         Dictionary<IntVector, PathNode> searchedNodes = new();
-        PathNode initialNode = pathGrid.GetNode(from.X, from.y);
+        PathNode? initialNode = pathGrid.GetNode(from.X, from.Y);
 
         nodesToSearch.Add(from, initialNode);
         while (nodesToSearch.Count > 0)

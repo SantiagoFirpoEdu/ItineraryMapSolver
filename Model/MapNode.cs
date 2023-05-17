@@ -2,59 +2,57 @@
 
 namespace ItineraryMapSolver.Model;
 
-public readonly struct MapNode : INode
+public readonly struct MapNode : INode<MapNode>
 {
-    public static Result<MapNode, EMapCharacterConversionError> FromCharacter(char nodeCharacter, IntVector position)
+    public static Result<MapNode, EMapCharacterConversionError> FromCharacter(char nodeCharacter, IntVector position, Dictionary<IntVector, MapNode> neighbors)
     {
         if (char.IsDigit(nodeCharacter))
         {
             return int.TryParse(nodeCharacter.ToString(), out int harborId)
-                ? Result<MapNode, EMapCharacterConversionError>.Ok(new MapNode(harborId, position))
+                ? Result<MapNode, EMapCharacterConversionError>.Ok(new MapNode(harborId, position, neighbors))
                 : Result<MapNode, EMapCharacterConversionError>.Error(EMapCharacterConversionError.InvalidCharacter);
         }
 
         return nodeCharacter switch
         {
-            '.' => Result<MapNode, EMapCharacterConversionError>.Ok(new MapNode(false, position)),
-            '*' => Result<MapNode, EMapCharacterConversionError>.Ok(new MapNode(true, position)),
+            '.' => Result<MapNode, EMapCharacterConversionError>.Ok(new MapNode(false, position, neighbors)),
+            '*' => Result<MapNode, EMapCharacterConversionError>.Ok(new MapNode(true, position, neighbors)),
             var _ => Result<MapNode, EMapCharacterConversionError>.Error(EMapCharacterConversionError.InvalidCharacter)
         };
     }
 
     public override string ToString()
     {
-        return data.MapExpression(harborId => harborId.ToString(), isWall => isWall ? "*" : ".");
+        return _data.MapExpression(harborId => harborId.ToString(), isWall => isWall ? "*" : ".");
     }
 
     public bool TryGetAsHarbor(out int harborId)
     {
-        return data.TryGetLeftValue(out harborId);
+        return _data.TryGetLeftValue(out harborId);
     }
     
     public bool TryGetAsRegularNode(out bool isWall)
     {
-        return data.TryGetRightValue(out isWall);
+        return _data.TryGetRightValue(out isWall);
     }
 
-    private MapNode(bool isWall, IntVector position)
+    public MapNode(bool isWall, IntVector position, Dictionary<IntVector, MapNode> neighbors)
     {
         Position = position;
-        data = Either<int, bool>.OfRightType(isWall);
+        Neighbors = neighbors;
+        _data = Either<int, bool>.OfRightType(isWall);
     }
 
-    private MapNode(int harborId, IntVector position)
+    public MapNode(int harborId, IntVector position, Dictionary<IntVector, MapNode> neighbors)
     {
         Position = position;
-        data = Either<int, bool>.OfLeftType(harborId);
+        Neighbors = neighbors;
+        _data = Either<int, bool>.OfLeftType(harborId);
     }
 
-    private readonly Either<int /*harborId*/, bool /*isWall*/> data;
+    private readonly Either<int /*harborId*/, bool /*isWall*/> _data;
     public IntVector Position { get; }
-}
-
-public interface INode
-{
-    public IntVector Position { get; }
+    public Dictionary<IntVector, MapNode> Neighbors { get; init; }
 }
 
 public enum EMapCharacterConversionError

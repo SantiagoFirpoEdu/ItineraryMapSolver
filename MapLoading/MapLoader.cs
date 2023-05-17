@@ -5,11 +5,11 @@ namespace ItineraryMapSolver.MapLoading;
 
 public static class MapLoader
 {
-    public static async Task<Result<MapGrid, EGridLoadError>> LoadGrid(string gridFilePath)
+    public static Result<MapGrid, EGridLoadError> LoadGrid(string gridFilePath)
     {
         try
         {
-            string[] allLines = await File.ReadAllLinesAsync(gridFilePath);
+            string[] allLines = File.ReadAllLines(gridFilePath);
 
             if (allLines.Length < 2)
             {
@@ -39,27 +39,38 @@ public static class MapLoader
     {
         for (int i = 1; i < allLines.Length; ++i)
         {
-            int y = i - 1;
-            ref readonly string line = ref allLines[^i];
-
-            for (int x = 0; x < line.Length; ++x)
-            {
-                char nodeCharacter = line[x];
-                IntVector nodePosition = new(x, y);
-                var nodeResult = MapNode.FromCharacter(nodeCharacter, nodePosition);
-
-                if (!nodeResult.TryGetOkValue(out MapNode node))
-                {
-                    continue;
-                }
-
-                if (node.TryGetAsHarbor(out int harborId))
-                {
-                    grid.AddDestination(harborId, x, y);
-                }
-                grid.SetNode(node, x, y);
-            }
+            PopulateColumn(grid, allLines, i);
         }
+    }
+
+    private static void PopulateColumn(MapGrid grid, string[] allLines, int i)
+    {
+        int y = i - 1;
+        ref readonly string line = ref allLines[^i];
+
+        for (int x = 0; x < line.Length; ++x)
+        {
+            PopulateLine(grid, line, x, y);
+        }
+    }
+
+    private static void PopulateLine(MapGrid grid, string line, int x, int y)
+    {
+        char nodeCharacter = line[x];
+        IntVector nodePosition = new(x, y);
+        var nodeResult = MapNode.FromCharacter(nodeCharacter, nodePosition, grid.GetNeighbors(nodePosition));
+
+        if (!nodeResult.TryGetOkValue(out MapNode node))
+        {
+            return;
+        }
+
+        if (node.TryGetAsHarbor(out int harborId))
+        {
+            grid.AddDestination(harborId, x, y);
+        }
+
+        grid.SetNode(node, x, y);
     }
 }
 

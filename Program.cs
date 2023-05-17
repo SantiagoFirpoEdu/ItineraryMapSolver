@@ -6,7 +6,7 @@ string? path = Console.ReadLine();
 
 if (path is not null)
 {
-    var result = await MapLoader.LoadGrid(path);
+    var result = MapLoader.LoadGrid(path);
 
     if (result.TryGetOkValue(out MapGrid grid))
     {

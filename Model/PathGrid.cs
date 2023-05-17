@@ -1,27 +1,40 @@
 ﻿namespace ItineraryMapSolver.Model;
 
-public class PathGrid : IGrid<PathNode>
+public readonly struct PathGrid : IGrid<PathNode>
 {
-    public PathGrid(int width, int height)
-    {
-        grid = new Grid<PathNode>(width, height);
-    }
+	public PathGrid(int width, int height)
+	{
+		_grid = new Grid<PathNode>(width, height);
+	
+		var grid = _grid;
+		PathNode NodeSupplier(IntVector position) => new(position, grid.GetNeighbors(position));
 
-    public PathNode GetNode(int x, int y)
-    {
-        throw new NotImplementedException();
-    }
-    public PathNode SetNode(PathNode newElement, int x, int y)
-    {
-        PathNode oldNode = grid.GetNode(x, y);
-        grid.SetNode(newElement, x, y);
-    }
-    public int Width => grid.Width;
-    public int Height => grid.Height;
-    public string DebugPrint()
-    {
-        throw new NotImplementedException();
-    }
+		grid.InitializeNodes(NodeSupplier);
+	}
 
-    private readonly Grid<PathNode> grid;
+	public PathNode GetNode(in int x, in int y)
+	{
+		return _grid.GetNode(x, y);
+	}
+
+	public PathNode GetNode(in IntVector position)
+	{
+		return _grid.GetNode(position);
+	}
+	public PathNode SetNode(in PathNode newElement, in int x, in int y)
+	{
+		return _grid.SetNode(newElement, x, y);
+	}
+	public int Width => _grid.Width;
+	public int Height => _grid.Height;
+	public string DebugPrint()
+	{
+		return _grid.DebugPrint();
+	}
+	public Dictionary<IntVector, PathNode> GetNeighbors(in IntVector nodePosition)
+	{
+		return _grid.GetNeighbors(nodePosition);
+	}
+	
+	private readonly Grid<PathNode> _grid;
 }

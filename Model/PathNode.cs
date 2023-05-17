@@ -1,12 +1,11 @@
 ﻿namespace ItineraryMapSolver.Model;
 
-public class PathNode : INode
+public class PathNode : INode<PathNode>
 {
-    public int TotalCost => heuristicCost + distanceFromStart;
-
-    public PathNode(IntVector position)
+    public PathNode(IntVector position, Dictionary<IntVector, PathNode> neighbors)
     {
         Position = position;
+        Neighbors = neighbors;
     }
 
     public override int GetHashCode()
@@ -14,9 +13,20 @@ public class PathNode : INode
         return Position.GetHashCode();
     }
 
-    public IntVector Position { get; }
+    public IntVector? Position { get; }
+    public Dictionary<IntVector, PathNode>? Neighbors { get; init; }
 
-    private const int unitWalkingCost = 1;
-    private int heuristicCost = 0;
-    private int distanceFromStart = 0;
+    public void ComputeTotalCost()
+    {
+        _totalCost = _heuristicCost + _distanceFromStart;
+    }
+
+    public const int UnitWalkingCost = 1;
+    private int _heuristicCost = int.MaxValue;
+    private int _distanceFromStart = int.MaxValue;
+    private int _totalCost = int.MaxValue;
+
+    public PathNode()
+    {
+    }
 }
