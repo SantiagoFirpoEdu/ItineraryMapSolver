@@ -28,4 +28,8 @@ if (mapFilePath is not null)
             Console.WriteLine("No path exists");
         }
     }
+    else
+    {
+        Console.Error.WriteLine($"Error while processing map: {loadMapResult.GetErrorValueUnsafe()}");
+    }
 }
