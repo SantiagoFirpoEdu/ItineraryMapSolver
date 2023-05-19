@@ -140,13 +140,14 @@ public static class AStarSolver
         var path = new List<IntVector>();
 
         ref readonly PathNode currentNode = ref endNode;
-        var currentNodeCameFromNodeIndex = currentNode.CameFromNodeIndex;
-        while (currentNodeCameFromNodeIndex.IsSet())
+        if (currentNode.Position is not null)
         {
-            if (currentNode.Position is not null)
-            {
-                path.Add((IntVector) currentNode.Position);
-            }
+            path.Add((IntVector) currentNode.Position);
+        }
+        var currentNodeCameFromNodeIndex = currentNode.CameFromNodeIndex;
+        do
+        {
+
             int cameFromNodeIndex = currentNodeCameFromNodeIndex.GetValue();
             PathNode cameFromNode = pathGrid.GetNode(cameFromNodeIndex);
             if (cameFromNode.Position is null)
@@ -155,8 +156,15 @@ public static class AStarSolver
             }
 
             currentNode = ref pathGrid.GetNodeRefReadonly(cameFromNodeIndex);
+
+            if (currentNode.Position is not null)
+            {
+                path.Add((IntVector) currentNode.Position);
+            }
+
             currentNodeCameFromNodeIndex = currentNode.CameFromNodeIndex;
         }
+        while (currentNodeCameFromNodeIndex.IsSet());
 
         path.Reverse();
 
