@@ -130,4 +130,11 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
     {
         return ref _data[nodeIndex];
     }
+
+    public bool IsValidPosition(IntVector position)
+    {
+        return position is {X: >= 0, Y: >= 0}
+            && position.X < Width
+            && position.Y < Height;
+    }
 }
