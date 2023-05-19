@@ -55,4 +55,9 @@ public struct MapGrid : IGrid<MapNode>
     {
         return _grid.ComputeIndex(x, y);
     }
+
+    public bool IsValidPosition(IntVector position)
+    {
+        return _grid.IsValidPosition(position);
+    }
 }

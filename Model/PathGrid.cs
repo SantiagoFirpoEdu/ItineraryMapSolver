@@ -72,10 +72,15 @@ public struct PathGrid : IGrid<PathNode>
 		return _grid.ComputeIndex(x, y);
 	}
 
-	private Grid<PathNode> _grid;
+	public bool IsValidPosition(IntVector position)
+	{
+		return _grid.IsValidPosition(position);
+	}
 
 	public readonly ref readonly PathNode GetNodeRefReadonly(int nodeIndex)
 	{
 		return ref _grid.GetNodeRefReadonly(nodeIndex);
 	}
+
+	private Grid<PathNode> _grid;
 }

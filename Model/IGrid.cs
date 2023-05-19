@@ -13,4 +13,5 @@ public interface IGrid<TElementType> where TElementType : INode<TElementType>
     ref TElementType GetNodeRef(int nodeIndex);
     int ComputeIndex(IntVector position);
     int ComputeIndex(int x, int y);
+    bool IsValidPosition(IntVector position);
 }
