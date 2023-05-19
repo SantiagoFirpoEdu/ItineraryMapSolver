@@ -11,7 +11,7 @@ public interface IGrid<TElementType> where TElementType : INode<TElementType>
     public string DebugPrint();
     HashSet<int> GetNeighbors(IntVector nodePosition);
     ref TElementType GetNodeRef(int nodeIndex);
-    int ComputeIndex(IntVector position);
-    int ComputeIndex(int x, int y);
+    int PositionToIndex(IntVector position);
+    int PositionToIndex(int x, int y);
     bool IsValidPosition(IntVector position);
 }

@@ -2,21 +2,27 @@
 
 namespace ItineraryMapSolver;
 
-public class GridMath
+public static class GridMath
 {
-    public static int ComputeIndex(IntVector position, int gridWidth, int gridHeight)
+    public static int PositionToIndex(IntVector position, int gridWidth, int gridHeight)
     {
-        return ComputeIndex(position.X, position.Y, gridWidth, gridHeight);
+        return PositionToIndex(position.X, position.Y, gridWidth, gridHeight);
     }
     
-    public static int ComputeIndex(IntVector position, IntVector gridDimensions)
+    public static int PositionToIndex(IntVector position, IntVector gridDimensions)
     {
-        return ComputeIndex(position.X, position.Y, gridDimensions.X, gridDimensions.Y);
+        return PositionToIndex(position.X, position.Y, gridDimensions.X, gridDimensions.Y);
     }
     
-    public static int ComputeIndex(int x, int y, int gridWidth, int gridHeight)
+    public static int PositionToIndex(int x, int y, int gridWidth, int gridHeight)
     {
         return x + (gridHeight - y - 1) * gridWidth;
+    }
+    
+    public static void IndexToPosition(int index, int gridWidth, int gridHeight, out int x, out int y)
+    {
+        y = (gridHeight - 1) - index / gridWidth;
+        x = index % gridWidth;
     }
 
     public static int GetManhattanDistance(IntVector from, IntVector to)

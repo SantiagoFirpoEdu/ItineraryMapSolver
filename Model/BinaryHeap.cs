@@ -2,136 +2,140 @@
 
 public class BinaryHeap<TElementType> where TElementType : notnull
 {
-    private readonly List<TElementType> heap;
-    private readonly IComparer<TElementType> comparer;
-    private readonly Dictionary<TElementType, int> itemIndices;
-
-    public BinaryHeap(IComparer<TElementType> comparer)
+    public BinaryHeap(Comparison<TElementType> comparer)
     {
-        this.heap = new List<TElementType>();
-        this.comparer = comparer;
-        this.itemIndices = new Dictionary<TElementType, int>();
+        _heap = new List<TElementType>();
+        _indices = new Dictionary<TElementType, int>();
+        this._comparer = comparer;
     }
 
-    public BinaryHeap() : this(Comparer<TElementType>.Default)
+    public int Count => _heap.Count;
+
+    public void Add(TElementType item)
     {
+        _heap.Add(item);
+        int currentIndex = _heap.Count - 1;
+        _indices[item] = currentIndex;
+
+        while (currentIndex > 0)
+        {
+            int parentIndex = (currentIndex - 1) / 2;
+            if (_comparer.Invoke(_heap[parentIndex], _heap[currentIndex]) <= 0)
+                break;
+
+            Swap(currentIndex, parentIndex);
+            currentIndex = parentIndex;
+        }
     }
 
-    public int Count => heap.Count;
-
-    public bool IsEmpty => heap.Count == 0;
-
-    public void Insert(TElementType item)
+    public TElementType Peek()
     {
-        heap.Add(item);
-        itemIndices[item] = heap.Count - 1;
-        PercolateUp(heap.Count - 1);
-    }
-
-    public TElementType Pop()
-    {
-        if (IsEmpty)
+        if (_heap.Count == 0)
             throw new InvalidOperationException("Heap is empty.");
 
-        TElementType item = heap[0];
-        itemIndices.Remove(item);
-
-        heap[0] = heap[^1];
-        itemIndices[heap[0]] = 0;
-        heap.RemoveAt(heap.Count - 1);
-
-        PercolateDown(0);
-        return item;
+        return _heap[0];
     }
 
-    public bool Remove(TElementType item)
+    public TElementType RemoveMin()
     {
-        if (!itemIndices.ContainsKey(item))
-            return false;
+        if (_heap.Count == 0)
+            throw new InvalidOperationException("Heap is empty.");
 
-        int index = itemIndices[item];
-        itemIndices.Remove(item);
+        TElementType minItem = _heap[0];
+        int lastIndex = _heap.Count - 1;
+        _heap[0] = _heap[lastIndex];
+        _indices[_heap[0]] = 0;
+        _heap.RemoveAt(lastIndex);
+        _indices.Remove(minItem);
 
-        if (index == heap.Count - 1)
+        int currentIndex = 0;
+        while (true)
         {
-            heap.RemoveAt(index);
-            return true;
+            int leftChildIndex = currentIndex * 2 + 1;
+            int rightChildIndex = currentIndex * 2 + 2;
+            int smallestChildIndex = currentIndex;
+
+            if (leftChildIndex < _heap.Count && _comparer.Invoke(_heap[leftChildIndex], _heap[smallestChildIndex]) < 0)
+                smallestChildIndex = leftChildIndex;
+
+            if (rightChildIndex < _heap.Count && _comparer.Invoke(_heap[rightChildIndex], _heap[smallestChildIndex]) < 0)
+                smallestChildIndex = rightChildIndex;
+
+            if (smallestChildIndex == currentIndex)
+                break;
+
+            Swap(currentIndex, smallestChildIndex);
+            currentIndex = smallestChildIndex;
         }
 
-        TElementType lastItem = heap[^1];
-        heap[index] = lastItem;
-        itemIndices[lastItem] = index;
-        heap.RemoveAt(heap.Count - 1);
+        return minItem;
+    }
 
-        int parentIndex = (index - 1) / 2;
-        if (index > 0 && comparer.Compare(heap[index], heap[parentIndex]) < 0)
-            PercolateUp(index);
+    public void Remove(TElementType item)
+    {
+        if (!_indices.ContainsKey(item))
+            throw new ArgumentException("Item does not exist in the heap.");
+
+        int indexToRemove = _indices[item];
+        int lastIndex = _heap.Count - 1;
+
+        if (indexToRemove == lastIndex)
+        {
+            _heap.RemoveAt(lastIndex);
+            _indices.Remove(item);
+            return;
+        }
+
+        TElementType itemToSwap = _heap[lastIndex];
+        _heap[indexToRemove] = itemToSwap;
+        _indices[itemToSwap] = indexToRemove;
+        _heap.RemoveAt(lastIndex);
+        _indices.Remove(item);
+
+        int parentIndex = (indexToRemove - 1) / 2;
+
+        if (indexToRemove > 0 && _comparer.Invoke(_heap[indexToRemove], _heap[parentIndex]) < 0)
+        {
+            while (indexToRemove > 0 && _comparer.Invoke(_heap[indexToRemove], _heap[parentIndex]) < 0)
+            {
+                Swap(indexToRemove, parentIndex);
+                indexToRemove = parentIndex;
+                parentIndex = (indexToRemove - 1) / 2;
+            }
+        }
         else
-            PercolateDown(index);
-
-        return true;
-    }
-
-    public TElementType GetMax()
-    {
-        if (IsEmpty)
-            throw new InvalidOperationException("Heap is empty.");
-
-        return heap[0];
-    }
-
-    public bool Contains(TElementType item)
-    {
-        return itemIndices.ContainsKey(item);
-    }
-
-    private void PercolateUp(int index)
-    {
-        while (true)
         {
-            if (index == 0) return;
-
-            int parentIndex = (index - 1) / 2;
-
-            if (comparer.Compare(heap[index], heap[parentIndex]) < 0)
+            int currentIndex = indexToRemove;
+            while (true)
             {
-                Swap(index, parentIndex);
-                index = parentIndex;
-                continue;
-            }
+                int leftChildIndex = currentIndex * 2 + 1;
+                int rightChildIndex = currentIndex * 2 + 2;
+                int smallestChildIndex = currentIndex;
 
-            break;
+                if (leftChildIndex < _heap.Count && _comparer.Invoke(_heap[leftChildIndex], _heap[smallestChildIndex]) < 0)
+                    smallestChildIndex = leftChildIndex;
+
+                if (rightChildIndex < _heap.Count && _comparer.Invoke(_heap[rightChildIndex], _heap[smallestChildIndex]) < 0)
+                    smallestChildIndex = rightChildIndex;
+
+                if (smallestChildIndex == currentIndex)
+                    break;
+
+                Swap(currentIndex, smallestChildIndex);
+                currentIndex = smallestChildIndex;
+            }
         }
     }
 
-    private void PercolateDown(int index)
+    private void Swap(int index1, int index2)
     {
-        while (true)
-        {
-            int leftChildIndex = 2 * index + 1;
-            int rightChildIndex = 2 * index + 2;
-            int largestIndex = index;
+        (_heap[index1], _heap[index2]) = (_heap[index2], _heap[index1]);
 
-            if (leftChildIndex < heap.Count && comparer.Compare(heap[leftChildIndex], heap[largestIndex]) > 0) largestIndex = leftChildIndex;
-
-            if (rightChildIndex < heap.Count && comparer.Compare(heap[rightChildIndex], heap[largestIndex]) > 0) largestIndex = rightChildIndex;
-
-            if (largestIndex != index)
-            {
-                Swap(index, largestIndex);
-                index = largestIndex;
-                continue;
-            }
-
-            break;
-        }
+        _indices[_heap[index1]] = index1;
+        _indices[_heap[index2]] = index2;
     }
-
-    private void Swap(int i, int j)
-    {
-        (heap[i], heap[j]) = (heap[j], heap[i]);
-
-        itemIndices[heap[i]] = i;
-        itemIndices[heap[j]] = j;
-    }
+    
+    private readonly List<TElementType> _heap;
+    private readonly Dictionary<TElementType, int> _indices;
+    private readonly Comparison<TElementType> _comparer;
 }

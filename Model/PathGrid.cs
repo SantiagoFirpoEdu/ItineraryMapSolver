@@ -17,7 +17,7 @@ public struct PathGrid : IGrid<PathNode>
 			{
 				ref PathNode pathNode = ref _grid.GetNodeRef(x, y);
 				IntVector position = new(x, y);
-				pathNode.Index = _grid.ComputeIndex(position);
+				pathNode.Index = _grid.PositionToIndex(position);
 				pathNode.CostFromStart = PathNode.InitialCostValue;
 				pathNode.HeuristicCost = GridMath.GetManhattanDistance(position, endPosition);
 				pathNode.InitializeTotalCost();
@@ -62,14 +62,14 @@ public struct PathGrid : IGrid<PathNode>
 		return ref _grid.GetNodeRef(nodeIndex);
 	}
 
-	public int ComputeIndex(IntVector position)
+	public int PositionToIndex(IntVector position)
 	{
-		return _grid.ComputeIndex(position);
+		return _grid.PositionToIndex(position);
 	}
 
-	public int ComputeIndex(int x, int y)
+	public int PositionToIndex(int x, int y)
 	{
-		return _grid.ComputeIndex(x, y);
+		return _grid.PositionToIndex(x, y);
 	}
 
 	public bool IsValidPosition(IntVector position)

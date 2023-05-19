@@ -20,7 +20,7 @@ public struct PathNode : INode<PathNode>
     public const int UnitWalkingCost = 1;
     public int HeuristicCost { get; set; }
     public int CostFromStart { get; set; }
-    public int? Index { get; set; }
+    public int Index { get; set; }
     public int TotalCost { get; private set; }
     
     public Option<int> CameFromNodeIndex { get; set; }

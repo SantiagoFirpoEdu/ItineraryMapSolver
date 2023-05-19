@@ -13,16 +13,21 @@ if (mapFilePath is not null)
     {
         Console.WriteLine(grid.DebugPrint());
 
-        var path = AStarSolver.SolvePath(grid, grid.Destinations[1], grid.Destinations[2]);
+        var destinations = grid.Destinations.Keys;
 
-        if (path.WasSuccessful())
+        var pathResult = AStarSolver.SolvePath(grid, grid.Destinations[4], grid.Destinations[8]);
+
+        if (pathResult.WasSuccessful())
         {
             Console.WriteLine("Found a path: ");
-            var okValueUnsafe = path.GetOkValueUnsafe();
-            foreach (IntVector pathPosition in okValueUnsafe)
+            List<IntVector> path = pathResult.GetOkValueUnsafe();
+
+            foreach (IntVector pathPosition in path)
             {
                 Console.WriteLine(pathPosition);
             }
+            
+            Console.WriteLine(grid.DebugPrintPath(path.ToHashSet()));
         }
         else
         {

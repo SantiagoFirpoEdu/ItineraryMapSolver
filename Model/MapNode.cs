@@ -39,7 +39,7 @@ public struct MapNode : INode<MapNode>
     public MapNode(bool isWall, IntVector position, HashSet<int> neighbors, IntVector gridDimensions)
     {
         Position = position;
-        Index = GridMath.ComputeIndex(position, gridDimensions);
+        Index = GridMath.PositionToIndex(position, gridDimensions);
         Neighbors = neighbors;
         _data = Either<int, bool>.OfRightType(isWall);
     }
@@ -47,7 +47,7 @@ public struct MapNode : INode<MapNode>
     public MapNode(int harborId, IntVector position, HashSet<int> neighbors, IntVector gridDimensions)
     {
         Position = position;
-        Index = GridMath.ComputeIndex(position, gridDimensions);
+        Index = GridMath.PositionToIndex(position, gridDimensions);
         Neighbors = neighbors;
         _data = Either<int, bool>.OfLeftType(harborId);
     }
@@ -56,7 +56,7 @@ public struct MapNode : INode<MapNode>
     public HashSet<int>? Neighbors { get; set; }
 
     private readonly Either<int /*harborId*/, bool /*isWall*/> _data;
-    public int? Index { get; set; }
+    public int Index { get; set; }
 }
 
 public enum EMapCharacterConversionError

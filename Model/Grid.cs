@@ -21,24 +21,30 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
 		}
     }
     
-    public readonly int ComputeIndex(IntVector position)
+    public readonly int PositionToIndex(IntVector position)
     {
-        return GridMath.ComputeIndex(position.X, position.Y, Width, Height);
+        return GridMath.PositionToIndex(position.X, position.Y, Width, Height);
     }
 
-    public readonly int ComputeIndex(int x, int y)
+    public readonly IntVector IndexToPosition(int index)
     {
-        return GridMath.ComputeIndex(x, y, Width, Height);
+        GridMath.IndexToPosition(index, Width, Height, out int x, out int y);
+        return new IntVector(x, y);
+    }
+
+    public readonly int PositionToIndex(int x, int y)
+    {
+        return GridMath.PositionToIndex(x, y, Width, Height);
     }
     
     public ref TElementType GetNodeRef(int x, int y)
     {
-        return ref _data[ComputeIndex(x, y)];
+        return ref _data[PositionToIndex(x, y)];
     }
     
     public readonly TElementType GetNode(int x, int y)
     {
-        return _data[ComputeIndex(x, y)];
+        return _data[PositionToIndex(x, y)];
     }
     public readonly TElementType GetNode(IntVector position)
     {
@@ -48,7 +54,7 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
     public TElementType SetNode(in TElementType newElement, int x, int y)
     {
         TElementType oldElement = GetNode(x, y);
-        _data[ComputeIndex(x, y)] = newElement;
+        _data[PositionToIndex(x, y)] = newElement;
         return oldElement;
     }
 
@@ -80,25 +86,25 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
         IntVector up = nodePosition + new IntVector(0, 1);
         if (up.Y < Height)
         {
-            neighbors.Add(ComputeIndex(up));
+            neighbors.Add(PositionToIndex(up));
         }
 
         IntVector down = nodePosition + new IntVector(0, -1);
         if ( down is { Y: >= 0 })
         {
-            neighbors.Add(ComputeIndex(down));
+            neighbors.Add(PositionToIndex(down));
         }
 
         IntVector left = nodePosition + new IntVector(-1, 0);
         if (left is { X: >= 0 })
         {
-            neighbors.Add(ComputeIndex(left));
+            neighbors.Add(PositionToIndex(left));
         }
 
         IntVector right = nodePosition + new IntVector(1, 0);
         if (right.X < Width)
         {
-            neighbors.Add(ComputeIndex(right));
+            neighbors.Add(PositionToIndex(right));
         }
 
         return neighbors;
@@ -136,5 +142,31 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
         return position is {X: >= 0, Y: >= 0}
             && position.X < Width
             && position.Y < Height;
+    }
+
+    public string DebugPrintPath(HashSet<IntVector> path)
+    {
+        StringBuilder builder = new(Width * Height);
+
+        for (int index = 0; index < _data.Length; index++)
+        {
+            IntVector position = IndexToPosition(index);
+            ref readonly TElementType element = ref _data[index];
+            if (index != 0 && index % Width == 0)
+            {
+                builder.Append('\n');
+            }
+
+            if (path.Contains(position))
+            {
+                builder.Append('X');
+            }
+            else
+            {
+                builder.Append(element);
+            }
+        }
+
+        return builder.ToString();
     }
 }

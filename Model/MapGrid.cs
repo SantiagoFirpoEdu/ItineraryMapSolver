@@ -32,6 +32,11 @@ public struct MapGrid : IGrid<MapNode>
     {
         return _grid.DebugPrint();
     }
+    
+    public string DebugPrintPath(HashSet<IntVector> path)
+    {
+        return _grid.DebugPrintPath(path);
+    }
 
     public HashSet<int> GetNeighbors(IntVector nodePosition)
     {
@@ -46,14 +51,14 @@ public struct MapGrid : IGrid<MapNode>
         return ref _grid.GetNodeRef(nodeIndex);
     }
 
-    public readonly int ComputeIndex(IntVector position)
+    public readonly int PositionToIndex(IntVector position)
     {
-        return _grid.ComputeIndex(position);
+        return _grid.PositionToIndex(position);
     }
 
-    public readonly int ComputeIndex(int x, int y)
+    public readonly int PositionToIndex(int x, int y)
     {
-        return _grid.ComputeIndex(x, y);
+        return _grid.PositionToIndex(x, y);
     }
 
     public bool IsValidPosition(IntVector position)
