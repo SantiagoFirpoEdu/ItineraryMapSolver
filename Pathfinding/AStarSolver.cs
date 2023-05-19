@@ -126,6 +126,8 @@ public static class AStarSolver
         neighborNode.CameFromNodeIndex = Option<int>.Some(currentNodeIndexValue);
         neighborNode.CostFromStart = candidateCostFromStart;
         neighborNode.ComputeTotalCost();
+        
+        //TODO (Santiago Firpo) replace hashset with binary heap and remove/reinsert changed nodes.
 
         nodesToSearch.Add(neighborIndex);
     }
@@ -147,7 +149,6 @@ public static class AStarSolver
         var currentNodeCameFromNodeIndex = currentNode.CameFromNodeIndex;
         do
         {
-
             int cameFromNodeIndex = currentNodeCameFromNodeIndex.GetValue();
             PathNode cameFromNode = pathGrid.GetNode(cameFromNodeIndex);
             if (cameFromNode.Position is null)
