@@ -13,9 +13,7 @@ if (mapFilePath is not null)
     {
         Console.WriteLine(grid.DebugPrint());
 
-        var destinations = grid.Destinations.Keys;
-
-        var pathResult = AStarSolver.SolvePath(grid, grid.Destinations[4], grid.Destinations[8]);
+        var pathResult = AStarSolver.SolvePath(grid, grid.Destinations[2], grid.Destinations[3]);
 
         if (pathResult.WasSuccessful())
         {

@@ -18,7 +18,7 @@ public static class AStarSolver
         PathGrid pathGrid = new(grid.Width, grid.Height, to);
         HashSet<int> nodesToSearch = new();
         HashSet<int> searchedNodes = new();
-        ref PathNode initialNode = ref pathGrid.GetNodeRef(pathGrid.ComputeIndex(from));
+        ref PathNode initialNode = ref pathGrid.GetNodeRef(pathGrid.PositionToIndex(from));
 
         if (!pathGrid.IsValidPosition(from))
         {
@@ -35,8 +35,7 @@ public static class AStarSolver
 
         int? endNodeIndex = pathGrid.GetNode(to).Index;
 
-        Debug.Assert(initialNode.Index != null, "initialNode.Index != null");
-        nodesToSearch.Add((int) initialNode.Index);
+        nodesToSearch.Add(initialNode.Index);
         while (nodesToSearch.Count > 0)
         {
             var currentNodeIndex = GetLowestTotalCost(nodesToSearch, pathGrid);
@@ -144,6 +143,10 @@ public static class AStarSolver
         var currentNodeCameFromNodeIndex = currentNode.CameFromNodeIndex;
         while (currentNodeCameFromNodeIndex.IsSet())
         {
+            if (currentNode.Position is not null)
+            {
+                path.Add((IntVector) currentNode.Position);
+            }
             int cameFromNodeIndex = currentNodeCameFromNodeIndex.GetValue();
             PathNode cameFromNode = pathGrid.GetNode(cameFromNodeIndex);
             if (cameFromNode.Position is null)
@@ -151,7 +154,6 @@ public static class AStarSolver
                 continue;
             }
 
-            path.Add((IntVector) cameFromNode.Position);
             currentNode = ref pathGrid.GetNodeRefReadonly(cameFromNodeIndex);
             currentNodeCameFromNodeIndex = currentNode.CameFromNodeIndex;
         }
