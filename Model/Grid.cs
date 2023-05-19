@@ -77,28 +77,28 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
     public readonly HashSet<int> GetNeighbors(IntVector nodePosition)
     {
         HashSet<int> neighbors = new();
-        IntVector bottomLeft = nodePosition + new IntVector(-1, -1);
-        if (bottomLeft is { X: >= 0, Y: >= 0 })
+        IntVector up = nodePosition + new IntVector(0, 1);
+        if (up.Y < Height)
         {
-            neighbors.Add(ComputeIndex(bottomLeft));
+            neighbors.Add(ComputeIndex(up));
         }
 
-        IntVector bottomRight = nodePosition + new IntVector(1, -1);
-        if (bottomRight.X < Width && bottomRight is { Y: >= 0 })
+        IntVector down = nodePosition + new IntVector(0, -1);
+        if ( down is { Y: >= 0 })
         {
-            neighbors.Add(ComputeIndex(bottomRight));
+            neighbors.Add(ComputeIndex(down));
         }
 
-        IntVector topLeft = nodePosition + new IntVector(-1, 1);
-        if (topLeft is { X: >= 0 } && topLeft.Y < Height)
+        IntVector left = nodePosition + new IntVector(-1, 0);
+        if (left is { X: >= 0 })
         {
-            neighbors.Add(ComputeIndex(topLeft));
+            neighbors.Add(ComputeIndex(left));
         }
 
-        IntVector topRight = nodePosition + new IntVector(1, 1);
-        if (topRight.X < Width && topRight.Y < Height)
+        IntVector right = nodePosition + new IntVector(1, 0);
+        if (right.X < Width)
         {
-            neighbors.Add(ComputeIndex(topRight));
+            neighbors.Add(ComputeIndex(right));
         }
 
         return neighbors;

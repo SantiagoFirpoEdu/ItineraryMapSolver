@@ -7,18 +7,19 @@ string? mapFilePath = Console.ReadLine();
 
 if (mapFilePath is not null)
 {
-    var result = MapLoader.LoadGrid(mapFilePath);
+    var loadMapResult = MapLoader.LoadGrid(mapFilePath);
 
-    if (result.TryGetOkValue(out MapGrid grid))
+    if (loadMapResult.TryGetOkValue(out MapGrid grid))
     {
         Console.WriteLine(grid.DebugPrint());
 
-        var path = AStarSolver.SolvePath(grid, grid.Destinations[6], grid.Destinations[8]);
+        var path = AStarSolver.SolvePath(grid, grid.Destinations[1], grid.Destinations[2]);
 
-        if (path != null)
+        if (path.WasSuccessful())
         {
             Console.WriteLine("Found a path: ");
-            foreach (IntVector pathPosition in path)
+            var okValueUnsafe = path.GetOkValueUnsafe();
+            foreach (IntVector pathPosition in okValueUnsafe)
             {
                 Console.WriteLine(pathPosition);
             }
