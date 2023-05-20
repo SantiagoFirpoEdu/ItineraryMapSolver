@@ -68,7 +68,7 @@ public struct MapGrid : IGrid<MapNode>
         return _grid.IsValidPosition(position);
     }
 
-    public Option<int> GetHarborId(in IntVector position)
+    public readonly Option<int> GetHarborId(in IntVector position)
     {
         return _grid.GetNode(position).TryGetAsHarbor(out int harborId)
             ? Option<int>.Some(harborId)
