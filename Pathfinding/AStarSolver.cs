@@ -6,14 +6,14 @@ namespace ItineraryMapSolver.Pathfinding;
 
 public static class AStarSolver
 {
-    public static async Task<Result<List<IntVector>, EPathfindingError>> SolvePathAsync(ReadonlyRef<MapGrid> grid, IntVector from,
+    public static async Task<Result<List<IntVector>, PathfindingError>> SolvePathAsync(ReadonlyRef<MapGrid> grid, IntVector from,
         IntVector to)
     {
-        Result<List<IntVector>, EPathfindingError> SolvePathWithParameters() => SolvePath(grid.GetValueRef(), from, to);
+        Result<List<IntVector>, PathfindingError> SolvePathWithParameters() => SolvePath(grid.GetValueRef(), from, to);
 
         return await Task.Run(SolvePathWithParameters);
     }
-    public static Result<List<IntVector>, EPathfindingError> SolvePath(in MapGrid grid, IntVector from, IntVector to)
+    public static Result<List<IntVector>, PathfindingError> SolvePath(in MapGrid grid, IntVector from, IntVector to)
     {
         PathGrid pathGrid = new(grid.Width, grid.Height, to);
         HashSet<int> nodesToSearch = new();
@@ -22,12 +22,13 @@ public static class AStarSolver
 
         if (!pathGrid.IsValidPosition(from))
         {
-            return Result<List<IntVector>, EPathfindingError>.Error(EPathfindingError.InvalidStartPosition);
+            return Result<List<IntVector>, PathfindingError>.Error(new PathfindingError(from, to, EPathfindingError.InvalidStartPosition));
         }
         
         if (!pathGrid.IsValidPosition(to))
         {
-            return Result<List<IntVector>, EPathfindingError>.Error(EPathfindingError.InvalidEndPosition);
+            return Result<List<IntVector>, PathfindingError>.Error(new PathfindingError(from, to,
+                EPathfindingError.InvalidStartPosition));
         }
 
         initialNode.CostFromStart = 0;
@@ -60,10 +61,10 @@ public static class AStarSolver
 
         return pathNode.CameFromNodeIndex.IsSet()
             //Found a path
-            ? Result<List<IntVector>, EPathfindingError>.Ok(TraceBackPath(pathGrid, pathNode) ?? throw new ApplicationException("Unable to trace path from end node"))
+            ? Result<List<IntVector>, PathfindingError>.Ok(TraceBackPath(pathGrid, pathNode) ?? throw new ApplicationException("Unable to trace path from end node"))
 
             //Did not find a path
-            : Result<List<IntVector>, EPathfindingError>.Error(EPathfindingError.NoAvailablePath);
+            : Result<List<IntVector>, PathfindingError>.Error(new PathfindingError(from, to, EPathfindingError.NoAvailablePath));
 
     }
 

@@ -1,4 +1,6 @@
-﻿namespace ItineraryMapSolver.Model;
+﻿using ItineraryMapSolver.Monads;
+
+namespace ItineraryMapSolver.Model;
 
 public struct MapGrid : IGrid<MapNode>
 {
@@ -64,5 +66,12 @@ public struct MapGrid : IGrid<MapNode>
     public bool IsValidPosition(IntVector position)
     {
         return _grid.IsValidPosition(position);
+    }
+
+    public Option<int> GetHarborId(in IntVector position)
+    {
+        return _grid.GetNode(position).TryGetAsHarbor(out int harborId)
+            ? Option<int>.Some(harborId)
+            : Option<int>.None();
     }
 }
