@@ -58,9 +58,8 @@ if (mapFilePath is not null)
         Console.WriteLine(grid.DebugPrintPath(completeItinerary.ToHashSet()));
 
         StringBuilder itinerary = new();
-        for (int index = 0; index < allDestinations.Count; index++)
+        foreach (var destination in allDestinations)
         {
-            var destination = allDestinations[index];
             itinerary.Append($"{destination.Key}");
             itinerary.Append(" -> ");
         }
