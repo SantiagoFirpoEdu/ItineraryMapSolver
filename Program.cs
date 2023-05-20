@@ -56,9 +56,8 @@ public static class Program
         }
     }
 
-    private static void SolveHarborInItinerary(in List<KeyValuePair<int, IntVector>> allDestinations, ref int index, in MapGrid grid, in List<IntVector> completeItinerary)
+    private static void SolveHarborInItinerary(List<KeyValuePair<int, IntVector>> allDestinations, ref int index, in MapGrid grid, in List<IntVector> completeItinerary)
     {
-
         (int _, IntVector fromPosition) = allDestinations[index];
         int nextIndex = index < allDestinations.Count - 1 ? index + 1 : 0;
         (int _, IntVector toPosition) = allDestinations[nextIndex];
