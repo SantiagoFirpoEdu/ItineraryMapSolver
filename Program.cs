@@ -1,6 +1,6 @@
-﻿using ItineraryMapSolver.MapLoading;
+﻿using System.Text;
+using ItineraryMapSolver.MapLoading;
 using ItineraryMapSolver.Model;
-using ItineraryMapSolver.Monads;
 using ItineraryMapSolver.Pathfinding;
 
 int SortByHarborId(KeyValuePair<int, IntVector> x1, KeyValuePair<int, IntVector> x2)
@@ -19,51 +19,57 @@ if (mapFilePath is not null)
     {
         Console.WriteLine(grid.DebugPrint());
 
-        bool needsToRetry = false;
         var allDestinations = grid.Destinations.ToList();
         allDestinations.Sort(SortByHarborId);
-        do
+
+        List<IntVector> completeItinerary = new();
+
+        for (int index = 0; index < allDestinations.Count;)
         {
-            int pathsCount = allDestinations.Count;
-            var tasks = new List<Task<Result<List<IntVector>, PathfindingError>>>(pathsCount);
-            for (int index = 0; index < pathsCount; index++)
+            (int _, IntVector fromPosition) = allDestinations[index];
+            int nextIndex = index < allDestinations.Count - 1 ? index + 1 : 0;
+            (int _, IntVector toPosition) = allDestinations[nextIndex];
+
+            var pathfindingResult = AStarSolver.SolvePath(grid, fromPosition, toPosition);
+
+            if (pathfindingResult.WasSuccessful())
             {
-                (int _, IntVector fromPosition) = allDestinations[index];
-                int nextIndex = index < pathsCount - 1 ? index + 1 : 0;
-                (int _, IntVector toPosition) = allDestinations[nextIndex];
+                var pathfindingSolution = pathfindingResult.GetOkValueUnsafe();
+                var fromHarborId = grid.GetHarborId(pathfindingSolution[0]);
+                var toHarborId = grid.GetHarborId(pathfindingSolution[^1]);
+                
+                // Console.WriteLine($"Found a path between harbor {fromHarborId.GetValue()} at position {pathfindingSolution[0]} and harbor {toHarborId.GetValue()} at position {pathfindingSolution[^1]}: ");
 
-                var gridRef = new ReadonlyRef<MapGrid>(grid);
+                // Console.WriteLine(grid.DebugPrintPath(pathfindingSolution.ToHashSet()));
 
-                var pathfindingTask = AStarSolver.SolvePathAsync(gridRef, fromPosition, toPosition);
-                tasks.Add(pathfindingTask);
-
+                completeItinerary.AddRange(pathfindingSolution);
+                ++index;
             }
-
-            var pathfindingResults = await Task.WhenAll(tasks);
-
-            foreach (var pathfindingResult in pathfindingResults)
+            else
             {
-                if (pathfindingResult.WasSuccessful())
-                {
-                    var pathResult = pathfindingResult.GetOkValueUnsafe();
-                    var fromHarborId = grid.GetHarborId(pathResult[0]);
-                    var toHarborId = grid.GetHarborId(pathResult[^1]);
-                    
-                    Console.WriteLine($"Found a path between harbor {fromHarborId.GetValue()} at position {pathResult[0]} and harbor {toHarborId.GetValue()} at position {pathResult[^1]}: ");
-
-                    Console.WriteLine(grid.DebugPrintPath(pathResult.ToHashSet()));
-                }
-                else
-                {
-                    (IntVector from, IntVector to, EPathfindingError _) = pathfindingResult.GetErrorValueUnsafe();
-                    int toHarborId = grid.GetHarborId(to).GetValue();
-                    Console.WriteLine($"No path exists between harbor {grid.GetHarborId(from).GetValue()} at {from} and harbor {toHarborId} at {to}");
-                    allDestinations.Remove(new KeyValuePair<int, IntVector>(toHarborId, to));
-                    needsToRetry = true;
-                }
+                (IntVector from, IntVector to, EPathfindingError _) = pathfindingResult.GetErrorValueUnsafe();
+                int toHarborId = grid.GetHarborId(to).GetValue();
+                // Console.WriteLine($"No path exists between harbor {grid.GetHarborId(from).GetValue()} at {from} and harbor {toHarborId} at {to}. Ignoring..");
+                allDestinations.Remove(new KeyValuePair<int, IntVector>(toHarborId, to));
             }
         }
-        while (needsToRetry);
+        
+        Console.WriteLine("Complete itinerary path: ");
+        Console.WriteLine(grid.DebugPrintPath(completeItinerary.ToHashSet()));
+
+        StringBuilder itinerary = new();
+        for (int index = 0; index < allDestinations.Count; index++)
+        {
+            var destination = allDestinations[index];
+            itinerary.Append($"{destination.Key}");
+            itinerary.Append(" -> ");
+        }
+        if (allDestinations.Count > 0)
+        {
+            itinerary.Append(itinerary[0]);
+        }
+
+        Console.WriteLine($"Total walking cost of itinerary ({itinerary}) is {completeItinerary.Count - 1}");
     }
     else
     {
