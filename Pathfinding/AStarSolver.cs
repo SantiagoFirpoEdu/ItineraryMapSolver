@@ -16,7 +16,7 @@ public static class AStarSolver
     public static Result<List<IntVector>, PathfindingError> SolvePath(in MapGrid grid, IntVector from, IntVector to)
     {
         PathGrid pathGrid = new(grid.Width, grid.Height, to);
-        HashSet<int> nodesToSearch = new();
+        PriorityQueue<int, int> nodesToSearch = new();
         HashSet<int> searchedNodes = new();
         ref PathNode initialNode = ref pathGrid.GetNodeRef(pathGrid.PositionToIndex(from));
 
@@ -36,10 +36,10 @@ public static class AStarSolver
 
         int? endNodeIndex = pathGrid.GetNode(to).Index;
 
-        nodesToSearch.Add(initialNode.Index);
+        nodesToSearch.Enqueue(initialNode.Index, initialNode.TotalCost);
         while (nodesToSearch.Count > 0)
         {
-            var currentNodeIndex = GetLowestTotalCost(nodesToSearch, pathGrid);
+            var currentNodeIndex = DequeueLowestCost(nodesToSearch);
 
             if (currentNodeIndex.IsEmpty())
             {
@@ -68,12 +68,9 @@ public static class AStarSolver
 
     }
 
-    private static void SearchNode(in MapGrid grid, ref HashSet<int> nodesToSearch, int currentNodeIndexValue,
+    private static void SearchNode(in MapGrid grid, ref PriorityQueue<int, int> nodesToSearch, int currentNodeIndexValue,
         ref HashSet<int> searchedNodes, ref PathGrid pathGrid)
     {
-
-        nodesToSearch.Remove(currentNodeIndexValue);
-
         searchedNodes.Add(currentNodeIndexValue);
 
         ref readonly PathNode currentNode = ref pathGrid.GetNodeRef(currentNodeIndexValue);
@@ -90,7 +87,7 @@ public static class AStarSolver
     }
 
     private static void ProcessNeighbors(in MapGrid grid, in HashSet<int> neighbors, ref PathGrid pathGrid, in PathNode currentNode,
-        int currentNodeIndexValue, ref HashSet<int> searchedNodes, ref HashSet<int> nodesToSearch)
+        int currentNodeIndexValue, ref HashSet<int> searchedNodes, ref PriorityQueue<int, int> nodesToSearch)
     {
         foreach (int neighborIndex in neighbors)
         {
@@ -100,7 +97,7 @@ public static class AStarSolver
     }
 
     private static void ProcessNeighbor(in MapGrid grid, ref PathGrid pathGrid, int neighborIndex, ref HashSet<int> searchedNodes,
-        in PathNode currentNode, int currentNodeIndexValue, ref HashSet<int> nodesToSearch)
+        in PathNode currentNode, int currentNodeIndexValue, ref PriorityQueue<int, int> nodesToSearch)
     {
         ref PathNode neighborNode = ref pathGrid.GetNodeRef(neighborIndex);
         if (searchedNodes.Contains(neighborIndex))
@@ -130,7 +127,7 @@ public static class AStarSolver
         
         //TODO (Santiago Firpo) replace hashset with binary heap and remove/reinsert changed nodes.
 
-        nodesToSearch.Add(neighborIndex);
+        nodesToSearch.Enqueue(neighborIndex, neighborNode.TotalCost);
     }
 
     private static List<IntVector>? TraceBackPath(in PathGrid pathGrid, in PathNode endNode)
@@ -173,18 +170,12 @@ public static class AStarSolver
         return path;
     }
 
-    private static Option<int> GetLowestTotalCost(in HashSet<int> nodesToSearch, in PathGrid grid)
+    private static Option<int> DequeueLowestCost(PriorityQueue<int, int> nodesToSearch)
     {
         var currentLowest = Option<int>.None();
-        foreach (int nodeIndex in nodesToSearch)
+        if (nodesToSearch.TryDequeue(out int nodeIndex, out int _))
         {
-            ref readonly PathNode node = ref grid.GetNodeRefReadonly(nodeIndex);
-
-            if (currentLowest.IsEmpty()
-            || node.TotalCost < grid.GetNodeRefReadonly(currentLowest.GetValue()).TotalCost)
-            {
-                currentLowest = Option<int>.Some(nodeIndex);
-            }
+            currentLowest = Option<int>.Some(nodeIndex);
         }
 
         return currentLowest;
