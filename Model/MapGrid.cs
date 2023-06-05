@@ -35,7 +35,7 @@ public struct MapGrid : IGrid<MapNode>
         return _grid.DebugPrint();
     }
     
-    public string DebugPrintPath(HashSet<IntVector> path)
+    public readonly string DebugPrintPath(HashSet<IntVector> path)
     {
         return _grid.DebugPrintPath(path);
     }

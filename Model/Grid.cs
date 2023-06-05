@@ -159,7 +159,7 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
 
             if (path.Contains(position))
             {
-                builder.Append('X');
+                builder.Append('@');
             }
             else
             {
