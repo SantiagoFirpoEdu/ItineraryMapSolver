@@ -9,6 +9,10 @@ public static class Program
 {
     public static void Main()
     {
+        Console.WriteLine("Do you wish to log the maps? (Y / N) (Can be very slow for huge maps)");
+        ConsoleKeyInfo nextKey = Console.ReadKey();
+
+        bool shouldLogMaps = nextKey.Key == ConsoleKey.Y;
 
         Console.WriteLine("Please insert the path to the map file: ");
         string? mapFilePath = Console.ReadLine();
@@ -22,7 +26,10 @@ public static class Program
 
         if (loadMapResult.TryGetOkValue(out MapGrid grid))
         {
-            Console.WriteLine(grid.DebugPrint());
+            if (shouldLogMaps)
+            {
+                Console.WriteLine(grid.DebugPrint());
+            }
 
             var allDestinations = grid.Destinations.ToList();
             allDestinations.Sort(SortByHarborId);
@@ -31,11 +38,14 @@ public static class Program
 
             for (int index = 0; index < allDestinations.Count;)
             {
-                SolveHarborInItinerary(allDestinations, ref index, grid, completeItinerary);
+                SolveHarborInItinerary(allDestinations, ref index, grid, completeItinerary, shouldLogMaps);
             }
-        
-            Console.WriteLine("Complete itinerary path: ");
-            Console.WriteLine(grid.DebugPrintPath(completeItinerary.ToHashSet()));
+
+            if (shouldLogMaps)
+            {
+                Console.WriteLine("Complete itinerary path: ");
+                Console.WriteLine(grid.DebugPrintPath(completeItinerary.ToHashSet()));
+            }
 
             StringBuilder itinerary = new();
             foreach (var destination in allDestinations)
@@ -56,7 +66,7 @@ public static class Program
         }
     }
 
-    private static void SolveHarborInItinerary(List<KeyValuePair<int, IntVector>> allDestinations, ref int index, in MapGrid grid, in List<IntVector> completeItinerary)
+    private static void SolveHarborInItinerary(List<KeyValuePair<int, IntVector>> allDestinations, ref int index, in MapGrid grid, in List<IntVector> completeItinerary, bool shouldLogMaps)
     {
         (int _, IntVector fromPosition) = allDestinations[index];
         int nextIndex = index < allDestinations.Count - 1 ? index + 1 : 0;
@@ -72,10 +82,12 @@ public static class Program
 
             pathfindingSolution.RemoveAt(0);
 
-            Console.WriteLine($"Found a path of length {pathfindingSolution.Count} between harbor {fromHarborId.GetValue()} at position {pathfindingSolution[0]} and harbor {toHarborId.GetValue()} at position {pathfindingSolution[^1]}: ");
+            if (shouldLogMaps)
+            {
+                Console.WriteLine($"Found a path of length {pathfindingSolution.Count} between harbor {fromHarborId.GetValue()} at position {pathfindingSolution[0]} and harbor {toHarborId.GetValue()} at position {pathfindingSolution[^1]}: ");
+                Console.WriteLine(grid.DebugPrintPath(pathfindingSolution.ToHashSet()));
+            }
 
-            Console.WriteLine(grid.DebugPrintPath(pathfindingSolution.ToHashSet()));
-            
             completeItinerary.AddRange(pathfindingSolution);
             ++index;
         }
@@ -83,7 +95,11 @@ public static class Program
         {
             (IntVector from, IntVector to, EPathfindingError _) = pathfindingResult.GetErrorValueUnsafe();
             int toHarborId = grid.GetHarborId(to).GetValue();
-            // Console.WriteLine($"No path exists between harbor {grid.GetHarborId(from).GetValue()} at {from} and harbor {toHarborId} at {to}. Ignoring..");
+            if (shouldLogMaps)
+            {
+                Console.WriteLine($"No path exists between harbor {grid.GetHarborId(from).GetValue()} at {from} and harbor {toHarborId} at {to}. Ignoring..");
+            }
+
             allDestinations.Remove(new KeyValuePair<int, IntVector>(toHarborId, to));
         }
     }
