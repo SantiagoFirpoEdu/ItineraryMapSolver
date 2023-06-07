@@ -48,7 +48,7 @@ public static class Program
                 itinerary.Append(itinerary[0]);
             }
 
-            Console.WriteLine($"Total walking cost of itinerary ({itinerary}) is {completeItinerary.Count - 1}");
+            Console.WriteLine($"Total walking cost of itinerary ({itinerary}) is {completeItinerary.Count}");
         }
         else
         {
@@ -67,12 +67,12 @@ public static class Program
         if (pathfindingResult.WasSuccessful())
         {
             var pathfindingSolution = pathfindingResult.GetOkValueUnsafe();
-            var fromHarborId = grid.GetHarborId(pathfindingSolution[0]);
-            var toHarborId = grid.GetHarborId(pathfindingSolution[^1]);
+            var fromHarborId = grid.GetHarborId(fromPosition);
+            var toHarborId = grid.GetHarborId(toPosition);
 
-            // Console.WriteLine($"Found a path between harbor {fromHarborId.GetValue()} at position {pathfindingSolution[0]} and harbor {toHarborId.GetValue()} at position {pathfindingSolution[^1]}: ");
+            Console.WriteLine($"Found a path of length {pathfindingSolution.Count} between harbor {fromHarborId.GetValue()} at position {pathfindingSolution[0]} and harbor {toHarborId.GetValue()} at position {pathfindingSolution[^1]}: ");
 
-            // Console.WriteLine(grid.DebugPrintPath(pathfindingSolution.ToHashSet()));
+            Console.WriteLine(grid.DebugPrintPath(pathfindingSolution.ToHashSet()));
 
             completeItinerary.AddRange(pathfindingSolution);
             ++index;

@@ -165,6 +165,11 @@ public static class AStarSolver
         }
         while (currentNodeCameFromNodeIndex.IsSet());
 
+        if (path.Count > 0)
+        {
+            path.RemoveAt(path.Count - 1);
+        }
+
         path.Reverse();
 
         return path;
