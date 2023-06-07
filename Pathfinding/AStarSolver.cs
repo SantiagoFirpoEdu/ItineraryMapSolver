@@ -115,8 +115,6 @@ public static class AStarSolver
         neighborNode.CameFromNodeIndex = Option<int>.Some(currentNodeIndexValue);
         neighborNode.CostFromStart = candidateCostFromStart;
         neighborNode.ComputeTotalCost();
-        
-        //TODO (Santiago Firpo) replace hashset with binary heap and remove/reinsert changed nodes.
 
         nodesToSearch.Enqueue(neighborIndex, neighborNode.TotalCost);
     }
