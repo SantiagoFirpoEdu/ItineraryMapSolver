@@ -2,9 +2,13 @@
 
 public struct PathGrid : IGrid<PathNode>
 {
-	public PathGrid(int width, int height, IntVector endPosition)
+	public PathGrid(int width, int height, IntVector endPosition, in MapGrid mapGrid)
 	{
-		_grid = new Grid<PathNode>(width, height);
+		MapGrid grid = mapGrid;
+
+		bool ValidNeighborPredicate(IntVector position) => grid.GetNode(position).IsWalkable();
+
+		_grid = new Grid<PathNode>(width, height, ValidNeighborPredicate);
 
 		InitializeNodes(endPosition);
 	}

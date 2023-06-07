@@ -21,6 +21,23 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
 		}
     }
     
+    public Grid(int width, int height, Predicate<IntVector> validNeighborPredicate)
+    {
+        Width = width;
+        Height = height;
+        _data = new TElementType[height * width];
+
+		for (int x = 0; x < width; x++)
+		{
+			for (int y = 0; y < height; y++)
+            {
+                ref TElementType elementType = ref GetNodeRef(x, y);
+                elementType.Position = new IntVector(x, y);
+                elementType.Neighbors = GetNeighbors((IntVector) elementType.Position, validNeighborPredicate);
+            }
+		}
+    }
+    
     public readonly int PositionToIndex(IntVector position)
     {
         return GridMath.PositionToIndex(position.X, position.Y, Width, Height);
@@ -80,6 +97,36 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
         return builder.ToString();
     }
 
+    public readonly HashSet<int> GetNeighbors(IntVector nodePosition, Predicate<IntVector> validNeighborPredicate)
+    {
+        HashSet<int> neighbors = new();
+        IntVector up = nodePosition + new IntVector(0, 1);
+        if (up.Y < Height && validNeighborPredicate.Invoke(up))
+        {
+            neighbors.Add(PositionToIndex(up));
+        }
+
+        IntVector down = nodePosition + new IntVector(0, -1);
+        if ( down is { Y: >= 0 } && validNeighborPredicate.Invoke(down))
+        {
+            neighbors.Add(PositionToIndex(down));
+        }
+
+        IntVector left = nodePosition + new IntVector(-1, 0);
+        if (left is { X: >= 0 } && validNeighborPredicate.Invoke(left))
+        {
+            neighbors.Add(PositionToIndex(left));
+        }
+
+        IntVector right = nodePosition + new IntVector(1, 0);
+        if (right.X < Width && validNeighborPredicate.Invoke(right))
+        {
+            neighbors.Add(PositionToIndex(right));
+        }
+
+        return neighbors;
+    }
+    
     public readonly HashSet<int> GetNeighbors(IntVector nodePosition)
     {
         HashSet<int> neighbors = new();

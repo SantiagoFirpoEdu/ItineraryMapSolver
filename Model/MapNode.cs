@@ -57,6 +57,15 @@ public struct MapNode : INode<MapNode>
 
     private readonly Either<int /*harborId*/, bool /*isWall*/> _data;
     public int Index { get; set; }
+    public bool IsWalkable()
+    {
+        if (TryGetAsRegularNode(out bool isWall))
+        {
+            return !isWall;
+        }
+
+        return true;
+    }
 }
 
 public enum EMapCharacterConversionError
