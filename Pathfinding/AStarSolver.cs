@@ -15,7 +15,7 @@ public static class AStarSolver
     }
     public static Result<List<IntVector>, PathfindingError> SolvePath(in MapGrid grid, IntVector from, IntVector to)
     {
-        PathGrid pathGrid = new(grid.Width, grid.Height, to, grid);
+        PathGrid pathGrid = new(grid.Width, grid.Height, to);
         PriorityQueue<int, int> nodesToSearch = new();
         HashSet<int> searchedNodes = new();
         ref PathNode initialNode = ref pathGrid.GetNodeRef(pathGrid.PositionToIndex(from));
@@ -103,6 +103,15 @@ public static class AStarSolver
         if (searchedNodes.Contains(neighborIndex))
         {
             return;
+        }
+
+        if (grid.GetNodeRef(neighborIndex).TryGetAsRegularNode(out bool isWall))
+        {
+            if (isWall)
+            {
+                searchedNodes.Add(neighborIndex);
+                return;
+            }
         }
 
         int candidateCostFromStart = currentNode.CostFromStart + PathNode.UnitWalkingCost;
