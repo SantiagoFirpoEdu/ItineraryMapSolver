@@ -10,7 +10,7 @@ public static class Program
     public static void Main()
     {
         Console.WriteLine("Do you wish to log the maps? (Y / N) (Can be very slow for huge maps)");
-        ConsoleKeyInfo nextKey = Console.ReadKey();
+        ConsoleKeyInfo nextKey = Console.ReadKey(true);
 
         bool shouldLogMaps = nextKey.Key == ConsoleKey.Y;
 

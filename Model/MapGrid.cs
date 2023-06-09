@@ -74,4 +74,8 @@ public struct MapGrid : IGrid<MapNode>
             ? Option<int>.Some(harborId)
             : Option<int>.None();
     }
+    public ref readonly MapNode GetNodeRefReadonly(IntVector position)
+    {
+        return ref _grid.GetNodeRefReadonly(position);
+    }
 }

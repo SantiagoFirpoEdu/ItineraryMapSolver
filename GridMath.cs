@@ -24,6 +24,11 @@ public static class GridMath
         y = (gridHeight - 1) - index / gridWidth;
         x = index % gridWidth;
     }
+    
+    public static IntVector IndexToPosition(int index, int gridWidth, int gridHeight)
+    {
+        return new IntVector(index % gridWidth, (gridHeight - 1) - index / gridWidth);
+    }
 
     public static int GetManhattanDistance(IntVector from, IntVector to)
     {

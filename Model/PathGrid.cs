@@ -2,18 +2,21 @@
 
 public struct PathGrid : IGrid<PathNode>
 {
-	public PathGrid(int width, int height, IntVector endPosition, in MapGrid mapGrid)
+	public PathGrid(int width, int height, in MapGrid grid)
 	{
-		MapGrid grid = mapGrid;
+		MapGrid mapGrid = grid;
 
-		bool ValidNeighborPredicate(IntVector position) => grid.GetNode(position).IsWalkable();
+		bool ValidNodePredicate(IntVector position)
+		{
+			return mapGrid.GetNodeRefReadonly(position).IsWalkable();
+		}
 
-		_grid = new Grid<PathNode>(width, height, ValidNeighborPredicate);
+		_grid = new Grid<PathNode>(width, height, ValidNodePredicate);
 
-		InitializeNodes(endPosition);
+		InitializeNodes();
 	}
 
-	private void InitializeNodes(IntVector endPosition)
+	private void InitializeNodes()
 	{
 		for (int x = 0; x < _grid.Width; x++)
 		{
@@ -23,7 +26,6 @@ public struct PathGrid : IGrid<PathNode>
 				IntVector position = new(x, y);
 				pathNode.Index = _grid.PositionToIndex(position);
 				pathNode.CostFromStart = PathNode.InitialCostValue;
-				pathNode.HeuristicCost = GridMath.GetManhattanDistance(position, endPosition);
 				pathNode.InitializeTotalCost();
 			}
 		}

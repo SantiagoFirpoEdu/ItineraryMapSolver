@@ -15,7 +15,7 @@ public static class AStarSolver
     }
     public static Result<List<IntVector>, PathfindingError> SolvePath(in MapGrid grid, IntVector from, IntVector to)
     {
-        PathGrid pathGrid = new(grid.Width, grid.Height, to, grid);
+        PathGrid pathGrid = new(grid.Width, grid.Height, grid);
         PriorityQueue<int, int> nodesToSearch = new();
         HashSet<int> searchedNodes = new();
         ref PathNode initialNode = ref pathGrid.GetNodeRef(pathGrid.PositionToIndex(from));
@@ -32,7 +32,7 @@ public static class AStarSolver
         }
 
         initialNode.CostFromStart = 0;
-        initialNode.ComputeTotalCost();
+        initialNode.ComputeTotalCost(to);
 
         int? endNodeIndex = pathGrid.GetNode(to).Index;
 
@@ -53,7 +53,7 @@ public static class AStarSolver
                 break;
             }
 
-            SearchNode(grid, ref nodesToSearch, currentNodeIndexValue, ref searchedNodes, ref pathGrid);
+            SearchNode(ref nodesToSearch, currentNodeIndexValue, ref searchedNodes, ref pathGrid, to, grid);
         }
 
         Debug.Assert(endNodeIndex != null, $"{nameof(endNodeIndex)} != null");
@@ -68,36 +68,37 @@ public static class AStarSolver
 
     }
 
-    private static void SearchNode(in MapGrid grid, ref PriorityQueue<int, int> nodesToSearch, int currentNodeIndexValue,
-        ref HashSet<int> searchedNodes, ref PathGrid pathGrid)
+    private static void SearchNode(ref PriorityQueue<int, int> nodesToSearch, int currentNodeIndexValue,
+        ref HashSet<int> searchedNodes, ref PathGrid pathGrid, IntVector endPosition, in MapGrid mapGrid)
     {
         searchedNodes.Add(currentNodeIndexValue);
 
         ref readonly PathNode currentNode = ref pathGrid.GetNodeRef(currentNodeIndexValue);
 
-        var neighbors = currentNode.Neighbors;
+        var neighbors = pathGrid.GetNeighbors((IntVector)currentNode.Position);
 
-        if (neighbors == null)
-        {
-            return;
-        }
-
-        ProcessNeighbors(grid, neighbors, ref pathGrid, currentNode, currentNodeIndexValue, ref searchedNodes,
-            ref nodesToSearch);
+        ProcessNeighbors(neighbors, ref pathGrid, currentNode, currentNodeIndexValue, ref searchedNodes,
+            ref nodesToSearch, endPosition, mapGrid);
     }
 
-    private static void ProcessNeighbors(in MapGrid grid, in HashSet<int> neighbors, ref PathGrid pathGrid, in PathNode currentNode,
-        int currentNodeIndexValue, ref HashSet<int> searchedNodes, ref PriorityQueue<int, int> nodesToSearch)
+    private static void ProcessNeighbors(in HashSet<int> neighbors, ref PathGrid pathGrid, in PathNode currentNode,
+        int currentNodeIndexValue, ref HashSet<int> searchedNodes, ref PriorityQueue<int, int> nodesToSearch, IntVector endPosition, MapGrid mapGrid)
     {
         foreach (int neighborIndex in neighbors)
         {
-            ProcessNeighbor(grid, ref pathGrid, neighborIndex, ref searchedNodes, currentNode, currentNodeIndexValue,
-                ref nodesToSearch);
+            if (!mapGrid.GetNodeRef(neighborIndex).IsWalkable())
+            {
+                searchedNodes.Add(neighborIndex);
+                continue;
+            }
+
+            ProcessNeighbor(ref pathGrid, neighborIndex, ref searchedNodes, currentNode, currentNodeIndexValue,
+                ref nodesToSearch, endPosition);
         }
     }
 
-    private static void ProcessNeighbor(in MapGrid grid, ref PathGrid pathGrid, int neighborIndex, ref HashSet<int> searchedNodes,
-        in PathNode currentNode, int currentNodeIndexValue, ref PriorityQueue<int, int> nodesToSearch)
+    private static void ProcessNeighbor(ref PathGrid pathGrid, int neighborIndex, ref HashSet<int> searchedNodes,
+        in PathNode currentNode, int currentNodeIndexValue, ref PriorityQueue<int, int> nodesToSearch, IntVector endPosition)
     {
         ref PathNode neighborNode = ref pathGrid.GetNodeRef(neighborIndex);
         if (searchedNodes.Contains(neighborIndex))
@@ -114,7 +115,7 @@ public static class AStarSolver
 
         neighborNode.CameFromNodeIndex = Option<int>.Some(currentNodeIndexValue);
         neighborNode.CostFromStart = candidateCostFromStart;
-        neighborNode.ComputeTotalCost();
+        neighborNode.ComputeTotalCost(endPosition);
 
         nodesToSearch.Enqueue(neighborIndex, neighborNode.TotalCost);
     }

@@ -16,12 +16,11 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
             {
                 ref TElementType elementType = ref GetNodeRef(x, y);
                 elementType.Position = new IntVector(x, y);
-                elementType.Neighbors = GetNeighbors((IntVector) elementType.Position);
             }
 		}
     }
     
-    public Grid(int width, int height, Predicate<IntVector> validNeighborPredicate)
+    public Grid(int width, int height, Predicate<IntVector> validNodePredicate)
     {
         Width = width;
         Height = height;
@@ -31,9 +30,13 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
 		{
 			for (int y = 0; y < height; y++)
             {
+                if (!validNodePredicate.Invoke(new IntVector(x, y)))
+                {
+                    continue;
+                }
+
                 ref TElementType elementType = ref GetNodeRef(x, y);
                 elementType.Position = new IntVector(x, y);
-                elementType.Neighbors = GetNeighbors((IntVector) elementType.Position, validNeighborPredicate);
             }
 		}
     }
@@ -57,6 +60,16 @@ public struct Grid<TElementType> : IGrid<TElementType> where TElementType : INod
     public ref TElementType GetNodeRef(int x, int y)
     {
         return ref _data[PositionToIndex(x, y)];
+    }
+    
+    public readonly ref TElementType GetNodeRefReadonly(int x, int y)
+    {
+        return ref _data[PositionToIndex(x, y)];
+    }
+    
+    public readonly ref TElementType GetNodeRefReadonly(IntVector position)
+    {
+        return ref GetNodeRefReadonly(position.X, position.Y);
     }
     
     public readonly TElementType GetNode(int x, int y)

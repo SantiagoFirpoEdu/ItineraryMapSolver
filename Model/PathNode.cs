@@ -12,8 +12,9 @@ public struct PathNode : INode<PathNode>
     public IntVector? Position { get; set; }
     public HashSet<int>? Neighbors { get; set; }
 
-    public void ComputeTotalCost()
+    public void ComputeTotalCost(IntVector endPosition)
     {
+        HeuristicCost = GridMath.GetManhattanDistance((IntVector)Position, endPosition);
         TotalCost = HeuristicCost + CostFromStart;
     }
 
