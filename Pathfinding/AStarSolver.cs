@@ -53,7 +53,7 @@ public static class AStarSolver
                 break;
             }
 
-            SearchNode(ref nodesToSearch, currentNodeIndexValue, ref searchedNodes, ref pathGrid, to, grid);
+            SearchNode(nodesToSearch, currentNodeIndexValue, ref searchedNodes, ref pathGrid, to, grid);
         }
 
         Debug.Assert(endNodeIndex != null, $"{nameof(endNodeIndex)} != null");
@@ -68,7 +68,7 @@ public static class AStarSolver
 
     }
 
-    private static void SearchNode(ref PriorityQueue<int, int> nodesToSearch, int currentNodeIndexValue,
+    private static void SearchNode(PriorityQueue<int, int> nodesToSearch, int currentNodeIndexValue,
         ref HashSet<int> searchedNodes, ref PathGrid pathGrid, IntVector endPosition, in MapGrid mapGrid)
     {
         searchedNodes.Add(currentNodeIndexValue);
@@ -78,11 +78,11 @@ public static class AStarSolver
         var neighbors = pathGrid.GetNeighbors((IntVector)currentNode.Position);
 
         ProcessNeighbors(neighbors, ref pathGrid, currentNode, currentNodeIndexValue, ref searchedNodes,
-            ref nodesToSearch, endPosition, mapGrid);
+            nodesToSearch, endPosition, mapGrid);
     }
 
     private static void ProcessNeighbors(in HashSet<int> neighbors, ref PathGrid pathGrid, in PathNode currentNode,
-        int currentNodeIndexValue, ref HashSet<int> searchedNodes, ref PriorityQueue<int, int> nodesToSearch, IntVector endPosition, MapGrid mapGrid)
+        int currentNodeIndexValue, ref HashSet<int> searchedNodes, PriorityQueue<int, int> nodesToSearch, IntVector endPosition, MapGrid mapGrid)
     {
         foreach (int neighborIndex in neighbors)
         {
@@ -93,12 +93,12 @@ public static class AStarSolver
             }
 
             ProcessNeighbor(ref pathGrid, neighborIndex, ref searchedNodes, currentNode, currentNodeIndexValue,
-                ref nodesToSearch, endPosition);
+                nodesToSearch, endPosition);
         }
     }
 
     private static void ProcessNeighbor(ref PathGrid pathGrid, int neighborIndex, ref HashSet<int> searchedNodes,
-        in PathNode currentNode, int currentNodeIndexValue, ref PriorityQueue<int, int> nodesToSearch, IntVector endPosition)
+        in PathNode currentNode, int currentNodeIndexValue, PriorityQueue<int, int> nodesToSearch, IntVector endPosition)
     {
         ref PathNode neighborNode = ref pathGrid.GetNodeRef(neighborIndex);
         if (searchedNodes.Contains(neighborIndex))
