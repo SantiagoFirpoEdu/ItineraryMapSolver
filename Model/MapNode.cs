@@ -31,7 +31,7 @@ public struct MapNode : INode<MapNode>
         return _data.TryGetLeftValue(out harborId);
     }
     
-    public bool TryGetAsRegularNode(out bool isWall)
+    public readonly bool TryGetAsRegularNode(out bool isWall)
     {
         return _data.TryGetRightValue(out isWall);
     }
@@ -55,7 +55,7 @@ public struct MapNode : INode<MapNode>
 
     private readonly Either<int /*harborId*/, bool /*isWall*/> _data;
     public int Index { get; set; }
-    public bool IsWalkable()
+    public readonly bool IsWalkable()
     {
         if (TryGetAsRegularNode(out bool isWall))
         {
